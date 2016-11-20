@@ -20,7 +20,8 @@ type Element msg
 type Attribute msg
   = PositionA Position
   | SizeA Size
-  | BorderA Color
+  | BorderA Border
+  | ShadowA Shadow
   | ColorA Color
   | BackgroundColorA Color
   | PaddingA Position
@@ -30,11 +31,26 @@ type Attribute msg
 type alias Options msg =
   { position : Maybe Position
   , size : Maybe Size
-  , border : Maybe Color
+  , border : Maybe Border
+  , shadow : Maybe Shadow
   , color : Maybe Color
   , backgroundColor : Maybe Color
   , padding : Maybe Position
   , events : List (Event msg)
+  }
+
+
+type alias Border =
+  { width : Int
+  , color : Color
+  }
+
+
+type alias Shadow =
+  { blur : Int
+  , offsetX : Int
+  , offsetY : Int
+  , color : Color
   }
 
 
@@ -51,6 +67,7 @@ defaultOptions =
   { position = Nothing
   , size = Nothing
   , border = Nothing
+  , shadow = Nothing
   , color = Nothing
   , backgroundColor = Nothing
   , padding = Nothing
@@ -72,6 +89,9 @@ makeOptions attrs =
 
           BorderA border ->
             { op | border = Just border }
+
+          ShadowA shadow ->
+            { op | shadow = Just shadow }
 
           ColorA color ->
             { op | color = Just color }

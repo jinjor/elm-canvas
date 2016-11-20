@@ -86,6 +86,7 @@ canvasView model =
             [ size 60 60
             , position 40 40
             , backgroundColor Color.lightPurple
+            , border 3 (Color.rgb 30 50 230)
             , onClick Decrement
             ]
             []
@@ -94,6 +95,7 @@ canvasView model =
         [ size 120 80
         , position (205 + model.count * 30) 300
         , backgroundColor Color.blue
+        , shadow 10 5 5 (Color.rgb 70 0 0)
         ]
         []
     ]

@@ -85,11 +85,18 @@ position x y = PositionA { x = x, y = y }
 
 
 size : Int -> Int -> Attribute msg
-size width height = SizeA { width = width, height = height }
+size width height =
+  SizeA { width = width, height = height }
 
 
-border : Color -> Attribute msg
-border = BorderA
+border : Int -> Color -> Attribute msg
+border width color =
+  BorderA { width = width, color = color }
+
+
+shadow : Int -> Int -> Int -> Color -> Attribute msg
+shadow blur offsetX offsetY color =
+  ShadowA { blur = blur, offsetX = offsetX, offsetY = offsetY, color = color }
 
 
 color : Color -> Attribute msg

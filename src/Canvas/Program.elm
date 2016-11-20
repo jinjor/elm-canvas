@@ -160,12 +160,16 @@ toOutputHelp context element =
         newContext =
           { context | position = position <+> Maybe.withDefault Position.zero options.padding }
 
+
+
         value =
           E.object
             [ ( "type", E.string "element" )
             , ( "position", E.object [ ("x", E.int position.x), ("y", E.int position.y) ] )
             , ( "size", E.object [ ("width", E.int size.width), ("height", E.int size.height) ] )
             , ( "color", E.string (options.color |> Maybe.map fromColor |> Maybe.withDefault "#000") )
+            , ( "border", encodeBorder options.border )
+            , ( "shadow", encodeShadow options.shadow )
             , ( "backgroundColor", E.string (options.backgroundColor |> Maybe.map fromColor |> Maybe.withDefault "transparent") )
             ]
       in
@@ -185,6 +189,27 @@ toOutputHelp context element =
             ]
       in
         [ value ]
+
+
+encodeBorder : Maybe Border -> E.Value
+encodeBorder border =
+  border
+    |> Maybe.map (\border -> E.object [ ("width", E.int border.width), ("color", E.string (fromColor border.color)) ])
+    |> Maybe.withDefault E.null
+
+
+encodeShadow : Maybe Shadow -> E.Value
+encodeShadow shadow =
+  shadow
+    |> Maybe.map (\shadow ->
+        E.object
+          [ ("blur", E.int shadow.blur)
+          , ("offsetX", E.int shadow.offsetX)
+          , ("offsetX", E.int shadow.offsetX)
+          , ("color", E.string (fromColor shadow.color))
+          ]
+      )
+    |> Maybe.withDefault E.null
 
 
 positionFrom : Position -> Options msg -> Position

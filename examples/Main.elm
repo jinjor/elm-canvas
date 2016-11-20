@@ -61,8 +61,8 @@ subscriptions _ =
 canvasView : Model -> Element Msg
 canvasView model =
   element
-    [ size 760 560
-    , position 20 20
+    [ size 660 460
+    , position 80 80
     , backgroundColor Color.lightBrown
     ]
     [ element

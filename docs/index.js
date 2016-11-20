@@ -9917,10 +9917,10 @@ var _user$project$Main$canvasView = function (model) {
 		_user$project$Canvas$element,
 		{
 			ctor: '::',
-			_0: A2(_user$project$Canvas$size, 760, 560),
+			_0: A2(_user$project$Canvas$size, 660, 460),
 			_1: {
 				ctor: '::',
-				_0: A2(_user$project$Canvas$position, 20, 20),
+				_0: A2(_user$project$Canvas$position, 80, 80),
 				_1: {
 					ctor: '::',
 					_0: _user$project$Canvas$backgroundColor(_elm_lang$core$Color$lightBrown),

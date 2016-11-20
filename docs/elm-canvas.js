@@ -4,7 +4,7 @@ function init(input, output) {
     var canvas = document.getElementById(e.canvasId);
     if(canvas) {
       var ctx = canvas.getContext('2d');
-      ctx.save();
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
       e.elements.forEach(function(el) {
         if(el.type === 'element') {
           if(el.border) {
@@ -30,7 +30,6 @@ function init(input, output) {
           ctx.fillStyle = el.color;
           ctx.fillText(el.content, el.position.x, el.position.y);
         }
-        ctx.restore();
       });
     }
   });

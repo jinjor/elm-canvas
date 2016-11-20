@@ -1,0 +1,22 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Main</title>
+    <style>
+    html,head,body { padding:0; margin:0; }
+    body {
+      font-family: calibri, helvetica, arial, sans-serif;
+      font-size: 24px;
+    }
+    </style>
+    <script src="./index.js"></script>
+    <script src="./elm-canvas.js"></script>
+  </head>
+  <body>
+    <script type="text/javascript">
+      var app = Elm.Main.fullscreen();
+      init(app.ports.input, app.ports.output);
+    </script>
+  </body>
+</html>

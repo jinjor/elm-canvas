@@ -10050,7 +10050,7 @@ var _user$project$Canvas$program = F2(
 			{init: init, update: update, view: view, subscriptions: subscriptions});
 	});
 
-var _user$project$Main$view = function (model) {
+var _user$project$DragAndDrop$view = function (model) {
 	return A2(
 		_elm_lang$html$Html$canvas,
 		{
@@ -10068,7 +10068,15 @@ var _user$project$Main$view = function (model) {
 							{
 								ctor: '::',
 								_0: {ctor: '_Tuple2', _0: 'background-color', _1: '#ddd'},
-								_1: {ctor: '[]'}
+								_1: {
+									ctor: '::',
+									_0: {ctor: '_Tuple2', _0: 'margin-left', _1: '50px'},
+									_1: {
+										ctor: '::',
+										_0: {ctor: '_Tuple2', _0: 'margin-top', _1: '50px'},
+										_1: {ctor: '[]'}
+									}
+								}
 							}),
 						_1: {ctor: '[]'}
 					}
@@ -10077,7 +10085,7 @@ var _user$project$Main$view = function (model) {
 		},
 		{ctor: '[]'});
 };
-var _user$project$Main$getPosition = function (_p0) {
+var _user$project$DragAndDrop$getPosition = function (_p0) {
 	var _p1 = _p0;
 	var _p5 = _p1.position;
 	var _p2 = _p1.drag;
@@ -10089,7 +10097,7 @@ var _user$project$Main$getPosition = function (_p0) {
 		return A2(_elm_lang$mouse$Mouse$Position, (_p5.x + _p3.x) - _p4.x, (_p5.y + _p3.y) - _p4.y);
 	}
 };
-var _user$project$Main$input = _elm_lang$core$Native_Platform.incomingPort(
+var _user$project$DragAndDrop$input = _elm_lang$core$Native_Platform.incomingPort(
 	'input',
 	A2(
 		_elm_lang$core$Json_Decode$andThen,
@@ -10103,7 +10111,7 @@ var _user$project$Main$input = _elm_lang$core$Native_Platform.incomingPort(
 				A2(_elm_lang$core$Json_Decode$field, 'data', _elm_lang$core$Json_Decode$value));
 		},
 		A2(_elm_lang$core$Json_Decode$field, 'type_', _elm_lang$core$Json_Decode$string)));
-var _user$project$Main$output = _elm_lang$core$Native_Platform.outgoingPort(
+var _user$project$DragAndDrop$output = _elm_lang$core$Native_Platform.outgoingPort(
 	'output',
 	function (v) {
 		return {
@@ -10114,23 +10122,23 @@ var _user$project$Main$output = _elm_lang$core$Native_Platform.outgoingPort(
 				})
 		};
 	});
-var _user$project$Main$Model = F2(
+var _user$project$DragAndDrop$Model = F2(
 	function (a, b) {
 		return {position: a, drag: b};
 	});
-var _user$project$Main$init = {
+var _user$project$DragAndDrop$init = {
 	ctor: '_Tuple2',
 	_0: A2(
-		_user$project$Main$Model,
+		_user$project$DragAndDrop$Model,
 		A2(_elm_lang$mouse$Mouse$Position, 200, 200),
 		_elm_lang$core$Maybe$Nothing),
 	_1: _elm_lang$core$Platform_Cmd$none
 };
-var _user$project$Main$Drag = F2(
+var _user$project$DragAndDrop$Drag = F2(
 	function (a, b) {
 		return {start: a, current: b};
 	});
-var _user$project$Main$updateHelp = F2(
+var _user$project$DragAndDrop$updateHelp = F2(
 	function (msg, _p6) {
 		var _p7 = _p6;
 		var _p12 = _p7.position;
@@ -10139,43 +10147,43 @@ var _user$project$Main$updateHelp = F2(
 			case 'DragStart':
 				var _p9 = _p8._0;
 				return A2(
-					_user$project$Main$Model,
+					_user$project$DragAndDrop$Model,
 					_p12,
 					_elm_lang$core$Maybe$Just(
-						A2(_user$project$Main$Drag, _p9, _p9)));
+						A2(_user$project$DragAndDrop$Drag, _p9, _p9)));
 			case 'DragAt':
 				return A2(
-					_user$project$Main$Model,
+					_user$project$DragAndDrop$Model,
 					_p12,
 					A2(
 						_elm_lang$core$Maybe$map,
 						function (_p10) {
 							var _p11 = _p10;
-							return A2(_user$project$Main$Drag, _p11.start, _p8._0);
+							return A2(_user$project$DragAndDrop$Drag, _p11.start, _p8._0);
 						},
 						_p7.drag));
 			default:
 				return A2(
-					_user$project$Main$Model,
-					_user$project$Main$getPosition(_p7),
+					_user$project$DragAndDrop$Model,
+					_user$project$DragAndDrop$getPosition(_p7),
 					_elm_lang$core$Maybe$Nothing);
 		}
 	});
-var _user$project$Main$update = F2(
+var _user$project$DragAndDrop$update = F2(
 	function (msg, model) {
 		return {
 			ctor: '_Tuple2',
-			_0: A2(_user$project$Main$updateHelp, msg, model),
+			_0: A2(_user$project$DragAndDrop$updateHelp, msg, model),
 			_1: _elm_lang$core$Platform_Cmd$none
 		};
 	});
-var _user$project$Main$DragEnd = function (a) {
+var _user$project$DragAndDrop$DragEnd = function (a) {
 	return {ctor: 'DragEnd', _0: a};
 };
-var _user$project$Main$DragAt = function (a) {
+var _user$project$DragAndDrop$DragAt = function (a) {
 	return {ctor: 'DragAt', _0: a};
 };
-var _user$project$Main$subscriptions = function (model) {
+var _user$project$DragAndDrop$subscriptions = function (model) {
 	var _p13 = model.drag;
 	if (_p13.ctor === 'Nothing') {
 		return _elm_lang$core$Platform_Sub$none;
@@ -10183,27 +10191,27 @@ var _user$project$Main$subscriptions = function (model) {
 		return _elm_lang$core$Platform_Sub$batch(
 			{
 				ctor: '::',
-				_0: _elm_lang$mouse$Mouse$moves(_user$project$Main$DragAt),
+				_0: _elm_lang$mouse$Mouse$moves(_user$project$DragAndDrop$DragAt),
 				_1: {
 					ctor: '::',
-					_0: _elm_lang$mouse$Mouse$ups(_user$project$Main$DragEnd),
+					_0: _elm_lang$mouse$Mouse$ups(_user$project$DragAndDrop$DragEnd),
 					_1: {ctor: '[]'}
 				}
 			});
 	}
 };
-var _user$project$Main$DragStart = function (a) {
+var _user$project$DragAndDrop$DragStart = function (a) {
 	return {ctor: 'DragStart', _0: a};
 };
-var _user$project$Main$canvasView = function (model) {
-	var realPosition = _user$project$Main$getPosition(model);
+var _user$project$DragAndDrop$canvasView = function (model) {
+	var realPosition = _user$project$DragAndDrop$getPosition(model);
 	return A2(
 		_user$project$Canvas$element,
 		{
 			ctor: '::',
 			_0: _user$project$Canvas$onMouseDown(
 				function (_p14) {
-					return _user$project$Main$DragStart(
+					return _user$project$DragAndDrop$DragStart(
 						function (_) {
 							return _.page;
 						}(_p14));
@@ -10233,15 +10241,15 @@ var _user$project$Main$canvasView = function (model) {
 			_1: {ctor: '[]'}
 		});
 };
-var _user$project$Main$main = A2(
+var _user$project$DragAndDrop$main = A2(
 	_user$project$Canvas$program,
-	{input: _user$project$Main$input, output: _user$project$Main$output},
-	{init: _user$project$Main$init, update: _user$project$Main$update, view: _user$project$Main$view, canvasId: 'canvas', canvasView: _user$project$Main$canvasView, subscriptions: _user$project$Main$subscriptions})();
+	{input: _user$project$DragAndDrop$input, output: _user$project$DragAndDrop$output},
+	{init: _user$project$DragAndDrop$init, update: _user$project$DragAndDrop$update, view: _user$project$DragAndDrop$view, canvasId: 'canvas', canvasView: _user$project$DragAndDrop$canvasView, subscriptions: _user$project$DragAndDrop$subscriptions})();
 
 var Elm = {};
-Elm['Main'] = Elm['Main'] || {};
-if (typeof _user$project$Main$main !== 'undefined') {
-    _user$project$Main$main(Elm['Main'], 'Main', undefined);
+Elm['DragAndDrop'] = Elm['DragAndDrop'] || {};
+if (typeof _user$project$DragAndDrop$main !== 'undefined') {
+    _user$project$DragAndDrop$main(Elm['DragAndDrop'], 'DragAndDrop', undefined);
 }
 
 if (typeof define === "function" && define['amd'])

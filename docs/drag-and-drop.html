@@ -1,0 +1,22 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Drag and Drop</title>
+    <style>
+    html,head,body { padding:0; margin:0; }
+    body {
+      font-family: calibri, helvetica, arial, sans-serif;
+      font-size: 24px;
+    }
+    </style>
+    <script src="./drag-and-drop.js"></script>
+    <script src="./elm-canvas.js"></script>
+  </head>
+  <body>
+    <script type="text/javascript">
+      var app = Elm.DragAndDrop.fullscreen();
+      init(app.ports.input, app.ports.output);
+    </script>
+  </body>
+</html>

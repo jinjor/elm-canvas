@@ -5,7 +5,6 @@ import Time
 import Html exposing (Html)
 import Html.Attributes as A
 import Canvas exposing (..)
-import Mouse exposing (Position)
 
 
 port input : (Canvas.Input -> msg) -> Sub msg
@@ -28,99 +27,78 @@ main =
     }
 
 
-
--- MODEL
-
-
 type alias Model =
-    { position : Position
-    , drag : Maybe Drag
-    }
+  { count : Int
+  }
 
 
-type alias Drag =
-    { start : Position
-    , current : Position
-    }
-
-
-init : ( Model, Cmd Msg )
+init : (Model, Cmd Msg)
 init =
-  ( Model (Position 200 200) Nothing, Cmd.none )
+  { count = 0 } ! []
 
 
-
--- UPDATE
-
-
-type Msg
-    = DragStart Position
-    | DragAt Position
-    | DragEnd Position
+type Msg =
+  Increment | Decrement
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
+update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
-  ( updateHelp msg model, Cmd.none )
-
-
-updateHelp : Msg -> Model -> Model
-updateHelp msg ({position, drag} as model) =
   case msg of
-    DragStart xy ->
-      Model position (Just (Drag xy xy))
+    Increment ->
+      { model | count = model.count + 1 } ! []
 
-    DragAt xy ->
-      Model position (Maybe.map (\{start} -> Drag start xy) drag)
+    Decrement ->
+      { model | count = model.count - 1 } ! []
 
-    DragEnd _ ->
-      Model (getPosition model) Nothing
-
-
-
--- SUBSCRIPTIONS
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
-  case model.drag of
-    Nothing ->
-      Sub.none
+subscriptions _ =
+  Sub.none
 
-    Just _ ->
-      Sub.batch [ Mouse.moves DragAt, Mouse.ups DragEnd ]
-
-
-
--- VIEW
 
 
 canvasView : Model -> Element Msg
 canvasView model =
-  let
-    realPosition =
-      getPosition model
-  in
-    element
-      [ onMouseDown (.page >> DragStart)
-      , backgroundColor (Color.rgb 60 141 47)
-      , size 100 100
-      , position realPosition.x realPosition.y
-      , color Color.white
-      ]
-      [ text "Drag Me!" ]
-
-
-getPosition : Model -> Position
-getPosition {position, drag} =
-  case drag of
-    Nothing ->
-      position
-
-    Just {start,current} ->
-      Position
-        (position.x + current.x - start.x)
-        (position.y + current.y - start.y)
+  element
+    [ size 660 460
+    , position 80 80
+    , backgroundColor Color.lightBrown
+    ]
+    [ element
+        [ padding 5 5
+        , size 30 30
+        , position 325 130
+        , backgroundColor Color.green
+        , onClick Increment
+        , onClick Increment
+        ]
+        [ text "Increment" ]
+    , element
+        [ padding 10 10
+        , size 120 80
+        , position 25 30
+        , backgroundColor Color.red
+        , onMouseDown Decrement
+        ]
+        [ text "Decrement"
+        , element
+            [ size 60 60
+            , position 40 40
+            , backgroundColor Color.lightPurple
+            , border 3 (Color.rgb 30 50 230)
+            , onClick Decrement
+            ]
+            []
+        ]
+    , element
+        [ size 120 80
+        , position (205 + model.count * 30) 300
+        , backgroundColor Color.blue
+        , shadow 10 5 5 (Color.rgb 70 0 0)
+        ]
+        []
+    ]
 
 
 view : Model -> Html Msg
@@ -129,5 +107,5 @@ view model =
     [ A.id "canvas"
     , A.width 800
     , A.height 600
-    , A.style [("background-color", "#ddd")]
+    , A.style [("background-color", "#ddd"), ("margin-left", "50px"), ("margin-top", "50px")]
     ] []

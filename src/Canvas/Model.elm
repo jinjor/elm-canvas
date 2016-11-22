@@ -113,6 +113,6 @@ makeOptions attrs =
             { op | padding = Just padding }
 
           EventA event ->
-            { op | events = event :: op.events } -- TODO dedup?
+            { op | events = event :: op.events }
       )
       defaultOptions

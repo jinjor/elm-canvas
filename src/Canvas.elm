@@ -45,7 +45,7 @@ program ports options =
     subscriptions model =
       Sub.batch
         [ options.subscriptions model.userModel |> Sub.map UserMsg
-        , Program.subscriptions
+        , Program.subscriptions ports
         ]
   in
     Html.program
@@ -115,5 +115,21 @@ padding x y = PaddingA { x = x, y = y }
 -- EVENTS
 
 
-onClick : msg -> Attribute msg
-onClick = EventA << Click
+onMouseDown : (MouseEvent -> msg) -> Attribute msg
+onMouseDown =
+  EventA << MouseDownE
+
+
+onMouseUp : (MouseEvent -> msg) -> Attribute msg
+onMouseUp =
+  EventA << MouseUpE
+
+
+onClick : (MouseEvent -> msg) -> Attribute msg
+onClick =
+  EventA << ClickE
+
+
+onDoubleClick : (MouseEvent -> msg) -> Attribute msg
+onDoubleClick =
+  EventA << DoubleClickE

@@ -5,6 +5,7 @@ import Time
 import Html exposing (Html)
 import Html.Attributes as A
 import Canvas exposing (..)
+import Mouse exposing (Position)
 
 
 port input : (Canvas.Input -> msg) -> Sub msg
@@ -27,79 +28,99 @@ main =
     }
 
 
+
+-- MODEL
+
+
 type alias Model =
-  { count : Int
-  }
+    { position : Position
+    , drag : Maybe Drag
+    }
 
 
-init : (Model, Cmd Msg)
+type alias Drag =
+    { start : Position
+    , current : Position
+    }
+
+
+init : ( Model, Cmd Msg )
 init =
-  { count = 0 } ! []
+  ( Model (Position 200 200) Nothing, Cmd.none )
 
 
-type Msg =
-  Increment | Decrement
+
+-- UPDATE
 
 
-update : Msg -> Model -> (Model, Cmd Msg)
+type Msg
+    = DragStart Position
+    | DragAt Position
+    | DragEnd Position
+
+
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
+  ( updateHelp msg model, Cmd.none )
+
+
+updateHelp : Msg -> Model -> Model
+updateHelp msg ({position, drag} as model) =
   case msg of
-    Increment ->
-      { model | count = model.count + 1 } ! []
+    DragStart xy ->
+      Model position (Just (Drag xy xy))
 
-    Decrement ->
-      { model | count = model.count - 1 } ! []
+    DragAt xy ->
+      Model position (Maybe.map (\{start} -> Drag start xy) drag)
 
+    DragEnd _ ->
+      Model (getPosition model) Nothing
+
+
+
+-- SUBSCRIPTIONS
 
 
 subscriptions : Model -> Sub Msg
-subscriptions _ =
-  Sub.none
+subscriptions model =
+  case model.drag of
+    Nothing ->
+      Sub.none
 
+    Just _ ->
+      Sub.batch [ Mouse.moves DragAt, Mouse.ups DragEnd ]
+
+
+
+-- VIEW
 
 
 canvasView : Model -> Element Msg
 canvasView model =
-  element
-    [ size 660 460
-    , position 80 80
-    , backgroundColor Color.lightBrown
-    ]
-    [ element
-        [ padding 5 5
-        , size 30 30
-        , position 325 130
-        , backgroundColor Color.green
-        , onClick Increment
-        , onClick Increment
-        ]
-        [ text "Increment" ]
-    , element
-        [ padding 10 10
-        , size 120 80
-        , position 25 30
-        , backgroundColor Color.red
-        , onClick Decrement
-        ]
-        [ text "Decrement"
-        , element
-            [ size 60 60
-            , position 40 40
-            , backgroundColor Color.lightPurple
-            , border 3 (Color.rgb 30 50 230)
-            , onClick Decrement
-            ]
-            []
-        ]
-    , element
-        [ size 120 80
-        , position (205 + model.count * 30) 300
-        , backgroundColor Color.blue
-        , shadow 10 5 5 (Color.rgb 70 0 0)
-        ]
-        []
-    ]
+  let
+    realPosition =
+      getPosition model
+  in
+    element
+      [ onMouseDown (.page >> DragStart)
+      , backgroundColor (Color.rgb 60 141 47)
+      , size 100 100
+      , position realPosition.x realPosition.y
+      , color Color.white
+      ]
+      [ text "Drag Me!" ]
 
+
+getPosition : Model -> Position
+getPosition {position, drag} =
+  case drag of
+    Nothing ->
+      position
+
+    Just {start,current} ->
+      Position
+        (position.x + current.x - start.x)
+        (position.y + current.y - start.y)
 
 
 view : Model -> Html Msg

@@ -3,6 +3,18 @@ function init(input, output) {
     // console.log(e);
     var canvas = document.getElementById(e.canvasId);
     if(canvas) {
+      canvas.onmousedown = function(e) {
+        input.send({ type_: 'mousedown', data: e });
+      }
+      canvas.onmouseup = function(e) {
+        input.send({ type_: 'mouseup', data: e });
+      }
+      canvas.onclick = function(e) {
+        input.send({ type_: 'click', data: e });
+      }
+      canvas.ondblclick = function(e) {
+        input.send({ type_: 'dblclick', data: e });
+      }
       var ctx = canvas.getContext('2d');
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       e.elements.forEach(function(el) {

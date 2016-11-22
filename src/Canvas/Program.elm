@@ -16,6 +16,7 @@ import Canvas.Position as Position exposing (..)
 type alias Model model msg =
   { userModel : model
   , element : Element msg
+  , zSorted : List (AbsolutePositionWithElementChain msg)
   }
 
 
@@ -23,13 +24,15 @@ type alias Model model msg =
 type Msg msg
   = NoOp
   | UserMsg msg
-  | MouseClick Position
-
+  | MouseDown OriginalMouseEvent
+  | MouseUp OriginalMouseEvent
+  | Click OriginalMouseEvent
+  | DoubleClick OriginalMouseEvent
 
 
 type alias Ports msg =
   { output : Output -> Cmd Output
-  , input : (Input -> msg) -> Sub msg
+  , input : (Input -> Msg msg) -> Sub (Msg msg)
   }
 
 
@@ -72,6 +75,7 @@ init ports config =
   in
     { userModel = initUserModel
     , element = element
+    , zSorted = sortByZIndex element
     }
     ! [ initUserCmd |> Cmd.map UserMsg
       , ports.output output |> Cmd.map (always NoOp)
@@ -103,29 +107,86 @@ update ports config msg model =
         { model
           | userModel = userModel
           , element = element
+          , zSorted = sortByZIndex element
         }
         ! [ userCmd |> Cmd.map UserMsg
           , ports.output output |> Cmd.map (always NoOp)
           ]
 
-    MouseClick page ->
-      let
-        events =
-          handleClickEvents model.element page
+    MouseDown e ->
+      ( model
+      , collectMouseDownEvents e model.zSorted e.offset |> toUserMsgCmd
+      )
 
-        cmd =
-          events
-            |> List.map (Task.succeed >> Task.perform UserMsg)
-            |> Cmd.batch
-      in
-        ( model, cmd )
+    MouseUp e ->
+      ( model
+      , collectMouseUpEvents e model.zSorted e.offset |> toUserMsgCmd
+      )
+
+    Click e ->
+      ( model
+      , collectClickEvents e model.zSorted e.offset |> toUserMsgCmd
+      )
+
+    DoubleClick e ->
+      ( model
+      , collectDoubleClickEvents e model.zSorted e.offset |> toUserMsgCmd
+      )
 
 
-subscriptions : Sub (Msg msg)
-subscriptions =
-  Sub.batch
-    [ Mouse.clicks MouseClick
-    ]
+toUserMsgCmd : List msg -> Cmd (Msg msg)
+toUserMsgCmd messages =
+  messages
+    |> List.map (Task.succeed >> Task.perform UserMsg)
+    |> Cmd.batch
+
+
+subscriptions : Ports msg -> Sub (Msg msg)
+subscriptions ports =
+  ports.input fromInput
+
+
+fromInput : Input -> Msg msg
+fromInput input =
+  if input.type_ == "mousedown" then
+    case D.decodeValue mouseEvent input.data of
+      Ok e -> MouseDown e
+      _ -> Debug.crash "cannot decode"
+  else if input.type_ == "mouseup" then
+    case D.decodeValue mouseEvent input.data of
+      Ok e -> MouseUp e
+      _ -> Debug.crash "cannot decode"
+  else if input.type_ == "click" then
+    case D.decodeValue mouseEvent input.data of
+      Ok e -> Click e
+      _ -> Debug.crash "cannot decode"
+  else if input.type_ == "dblclick" then
+    case D.decodeValue mouseEvent input.data of
+      Ok e -> DoubleClick e
+      _ -> Debug.crash "cannot decode"
+  else
+    Debug.crash ("undefined input type: " ++ input.type_)
+
+
+
+type alias OriginalMouseEvent =
+  { page : Position
+  , offset : Position
+  }
+
+
+mouseEvent : Decoder OriginalMouseEvent
+mouseEvent =
+  D.map4
+    (\offsetX offsetY pageX pageY ->
+      { offset = { x = offsetX, y = offsetY }
+      , page = { x = pageX, y = pageY }
+      }
+    )
+    ( D.field "offsetX" D.int )
+    ( D.field "offsetY" D.int )
+    ( D.field "pageX" D.int )
+    ( D.field "pageY" D.int )
 
 
 toOutput : String -> Element msg -> Output
@@ -159,8 +220,6 @@ toOutputHelp context element =
 
         newContext =
           { context | position = position <+> Maybe.withDefault Position.zero options.padding }
-
-
 
         value =
           E.object
@@ -222,47 +281,105 @@ sizeOf options =
   options.size |> Maybe.withDefault { width = 0, height = 0 }
 
 
-handleClickEvents : Element msg -> Position -> List msg
-handleClickEvents element position =
-  let
-    sorted =
-      sortByZIndex element
-  in
-    findMouseEventTarget position sorted
-      |> Maybe.map (\(_, element, parents) ->
-          collectEvents element parents
+collectMouseDownEvents : OriginalMouseEvent -> List (AbsolutePositionWithElementChain msg) -> Position -> List msg
+collectMouseDownEvents =
+  collectMouseEvents (\e ->
+    case e of
+      MouseDownE toMsg ->
+        Just toMsg
+
+      _ ->
+        Nothing
+  )
+
+
+collectMouseUpEvents : OriginalMouseEvent -> List (AbsolutePositionWithElementChain msg) -> Position -> List msg
+collectMouseUpEvents =
+  collectMouseEvents (\e ->
+    case e of
+      MouseUpE toMsg ->
+        Just toMsg
+
+      _ ->
+        Nothing
+  )
+
+
+collectClickEvents : OriginalMouseEvent -> List (AbsolutePositionWithElementChain msg) -> Position -> List msg
+collectClickEvents =
+  collectMouseEvents (\e ->
+    case e of
+      ClickE toMsg ->
+        Just toMsg
+
+      _ ->
+        Nothing
+  )
+
+
+collectDoubleClickEvents : OriginalMouseEvent -> List (AbsolutePositionWithElementChain msg) -> Position -> List msg
+collectDoubleClickEvents =
+  collectMouseEvents (\e ->
+    case e of
+      DoubleClickE toMsg ->
+        Just toMsg
+
+      _ ->
+        Nothing
+  )
+
+
+collectMouseEvents : (Event msg -> Maybe (MouseEvent -> msg)) -> OriginalMouseEvent -> List (AbsolutePositionWithElementChain msg) -> Position -> List msg
+collectMouseEvents f originalEvent =
+  collectEvents (\offset e ->
+    f e
+      |> Maybe.map
+        (\toMsg ->
+          toMsg
+            { page = originalEvent.page
+            , canvas = originalEvent.offset
+            , offset = offset
+            }
         )
-      |> Maybe.withDefault []
+  )
 
 
-collectEvents : Element msg -> List (Element msg) -> List msg
-collectEvents element parents =
+collectEvents : (Position -> Event msg -> Maybe msg) -> List (AbsolutePositionWithElementChain msg) -> Position -> List msg
+collectEvents toMsg zSorted position =
+  findMouseEventTarget (toMsg Position.zero >> (/=) Nothing) position zSorted
+    |> Maybe.map (\(target, parents) -> collectEventsHelp toMsg position target parents)
+    |> Maybe.withDefault []
+
+
+collectEventsHelp : (Position -> Event msg -> Maybe msg) -> Position -> AbsolutePositionWithElement msg -> List (AbsolutePositionWithElement msg) -> List msg
+collectEventsHelp toMsg position (absPosition, element) parents =
   case element of
     Element options _ ->
       let
         targetEvents =
           options.events
-            |> List.map (\(Click msg) -> msg)
+            |> List.filterMap (toMsg (position <-> absPosition))
       in
         case parents of
           [] ->
             targetEvents
 
           x :: xs ->
-            targetEvents ++ collectEvents x xs
+            targetEvents ++ collectEventsHelp toMsg position x xs
 
     _ ->
       Debug.crash "text cannot be a target or its parents"
 
 
 findMouseEventTarget
-   : Position
-  -> List (Position, Element msg, List (Element msg))
-  -> Maybe (Position, Element msg, List (Element msg))
-findMouseEventTarget position elements =
-  elements
-    |> find (\(absPosition, e, parents) ->
-      case e of
+   : (Event msg -> Bool)
+  -> Position
+  -> List (AbsolutePositionWithElementChain msg)
+  -> Maybe (AbsolutePositionWithElementChain msg)
+findMouseEventTarget isTarget position chainList =
+  chainList
+    |> find (\((absPosition, element), _) ->
+      case element of
         Element options _ ->
           let
             size =
@@ -287,17 +404,25 @@ find ok list =
       if ok x then Just x else find ok xs
 
 
-sortByZIndex : Element msg -> List (Position, Element msg, List (Element msg))
+type alias AbsolutePositionWithElementChain msg
+  = (AbsolutePositionWithElement msg, List (AbsolutePositionWithElement msg))
+
+
+type alias AbsolutePositionWithElement msg =
+  (Position, Element msg)
+
+
+sortByZIndex : Element msg -> List (AbsolutePositionWithElementChain msg)
 sortByZIndex element =
   sortByZIndexHelp Position.zero [] element []
 
 
 sortByZIndexHelp
    : Position
-  -> List (Element msg)
+  -> List (AbsolutePositionWithElement msg)
   -> Element msg
-  -> List (Position, Element msg, List (Element msg))
-  -> List (Position, Element msg, List (Element msg))
+  -> List (AbsolutePositionWithElementChain msg)
+  -> List (AbsolutePositionWithElementChain msg)
 sortByZIndexHelp from parents element prev =
   case element of
     Element options children ->
@@ -306,13 +431,13 @@ sortByZIndexHelp from parents element prev =
           positionFrom from options
 
         paddedAbsPosition =
-          absPosition <+> Maybe.withDefault { x = 0, y = 0 } options.padding
+          absPosition <+> Maybe.withDefault Position.zero options.padding
       in
         List.foldr
-          (sortByZIndexHelp paddedAbsPosition (element :: parents))
+          (sortByZIndexHelp paddedAbsPosition ((absPosition, element) :: parents))
           prev
           children
-        ++ [ (absPosition, element, parents) ]
+        ++ [ ((absPosition, element), parents) ]
 
     _ ->
       prev

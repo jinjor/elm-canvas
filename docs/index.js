@@ -9194,6 +9194,10 @@ var _user$project$Canvas_Model$Shadow = F4(
 	function (a, b, c, d) {
 		return {blur: a, offsetX: b, offsetY: c, color: d};
 	});
+var _user$project$Canvas_Model$MouseEvent = F3(
+	function (a, b, c) {
+		return {page: a, canvas: b, offset: c};
+	});
 var _user$project$Canvas_Model$Text = function (a) {
 	return {ctor: 'Text', _0: a};
 };
@@ -9225,8 +9229,17 @@ var _user$project$Canvas_Model$SizeA = function (a) {
 var _user$project$Canvas_Model$PositionA = function (a) {
 	return {ctor: 'PositionA', _0: a};
 };
-var _user$project$Canvas_Model$Click = function (a) {
-	return {ctor: 'Click', _0: a};
+var _user$project$Canvas_Model$DoubleClickE = function (a) {
+	return {ctor: 'DoubleClickE', _0: a};
+};
+var _user$project$Canvas_Model$ClickE = function (a) {
+	return {ctor: 'ClickE', _0: a};
+};
+var _user$project$Canvas_Model$MouseUpE = function (a) {
+	return {ctor: 'MouseUpE', _0: a};
+};
+var _user$project$Canvas_Model$MouseDownE = function (a) {
+	return {ctor: 'MouseDownE', _0: a};
 };
 
 var _user$project$Canvas_Program$fromColor = function (color) {
@@ -9278,17 +9291,16 @@ var _user$project$Canvas_Program$find = F2(
 			}
 		}
 	});
-var _user$project$Canvas_Program$collectEvents = F2(
-	function (element, parents) {
-		var _p2 = element;
-		if (_p2.ctor === 'Element') {
+var _user$project$Canvas_Program$collectEventsHelp = F4(
+	function (toMsg, position, _p2, parents) {
+		var _p3 = _p2;
+		var _p4 = _p3._1;
+		if (_p4.ctor === 'Element') {
 			var targetEvents = A2(
-				_elm_lang$core$List$map,
-				function (_p3) {
-					var _p4 = _p3;
-					return _p4._0;
-				},
-				_p2._0.events);
+				_elm_lang$core$List$filterMap,
+				toMsg(
+					A2(_user$project$Canvas_Position_ops['<->'], position, _p3._0)),
+				_p4._0.events);
 			var _p5 = parents;
 			if (_p5.ctor === '[]') {
 				return targetEvents;
@@ -9296,16 +9308,16 @@ var _user$project$Canvas_Program$collectEvents = F2(
 				return A2(
 					_elm_lang$core$Basics_ops['++'],
 					targetEvents,
-					A2(_user$project$Canvas_Program$collectEvents, _p5._0, _p5._1));
+					A4(_user$project$Canvas_Program$collectEventsHelp, toMsg, position, _p5._0, _p5._1));
 			}
 		} else {
 			return _elm_lang$core$Native_Utils.crashCase(
 				'Canvas.Program',
 				{
-					start: {line: 240, column: 3},
-					end: {line: 255, column: 59}
+					start: {line: 356, column: 3},
+					end: {line: 371, column: 59}
 				},
-				_p2)('text cannot be a target or its parents');
+				_p4)('text cannot be a target or its parents');
 		}
 	});
 var _user$project$Canvas_Program$sizeOf = function (options) {
@@ -9314,14 +9326,14 @@ var _user$project$Canvas_Program$sizeOf = function (options) {
 		{width: 0, height: 0},
 		options.size);
 };
-var _user$project$Canvas_Program$findMouseEventTarget = F2(
-	function (position, elements) {
+var _user$project$Canvas_Program$findMouseEventTarget = F3(
+	function (isTarget, position, chainList) {
 		return A2(
 			_user$project$Canvas_Program$find,
 			function (_p7) {
 				var _p8 = _p7;
-				var _p10 = _p8._0;
-				var _p9 = _p8._1;
+				var _p10 = _p8._0._0;
+				var _p9 = _p8._0._1;
 				if (_p9.ctor === 'Element') {
 					var size = _user$project$Canvas_Program$sizeOf(_p9._0);
 					return (_elm_lang$core$Native_Utils.cmp(position.x, _p10.x) > -1) && ((_elm_lang$core$Native_Utils.cmp(position.x, _p10.x + size.width) < 1) && ((_elm_lang$core$Native_Utils.cmp(position.y, _p10.y) > -1) && (_elm_lang$core$Native_Utils.cmp(position.y, _p10.y + size.height) < 1)));
@@ -9329,7 +9341,82 @@ var _user$project$Canvas_Program$findMouseEventTarget = F2(
 					return false;
 				}
 			},
-			elements);
+			chainList);
+	});
+var _user$project$Canvas_Program$collectEvents = F3(
+	function (toMsg, zSorted, position) {
+		return A2(
+			_elm_lang$core$Maybe$withDefault,
+			{ctor: '[]'},
+			A2(
+				_elm_lang$core$Maybe$map,
+				function (_p11) {
+					var _p12 = _p11;
+					return A4(_user$project$Canvas_Program$collectEventsHelp, toMsg, position, _p12._0, _p12._1);
+				},
+				A3(
+					_user$project$Canvas_Program$findMouseEventTarget,
+					function (_p13) {
+						return A2(
+							F2(
+								function (x, y) {
+									return !_elm_lang$core$Native_Utils.eq(x, y);
+								}),
+							_elm_lang$core$Maybe$Nothing,
+							A2(toMsg, _user$project$Canvas_Position$zero, _p13));
+					},
+					position,
+					zSorted)));
+	});
+var _user$project$Canvas_Program$collectMouseEvents = F2(
+	function (f, originalEvent) {
+		return _user$project$Canvas_Program$collectEvents(
+			F2(
+				function (offset, e) {
+					return A2(
+						_elm_lang$core$Maybe$map,
+						function (toMsg) {
+							return toMsg(
+								{page: originalEvent.page, canvas: originalEvent.offset, offset: offset});
+						},
+						f(e));
+				}));
+	});
+var _user$project$Canvas_Program$collectMouseDownEvents = _user$project$Canvas_Program$collectMouseEvents(
+	function (e) {
+		var _p14 = e;
+		if (_p14.ctor === 'MouseDownE') {
+			return _elm_lang$core$Maybe$Just(_p14._0);
+		} else {
+			return _elm_lang$core$Maybe$Nothing;
+		}
+	});
+var _user$project$Canvas_Program$collectMouseUpEvents = _user$project$Canvas_Program$collectMouseEvents(
+	function (e) {
+		var _p15 = e;
+		if (_p15.ctor === 'MouseUpE') {
+			return _elm_lang$core$Maybe$Just(_p15._0);
+		} else {
+			return _elm_lang$core$Maybe$Nothing;
+		}
+	});
+var _user$project$Canvas_Program$collectClickEvents = _user$project$Canvas_Program$collectMouseEvents(
+	function (e) {
+		var _p16 = e;
+		if (_p16.ctor === 'ClickE') {
+			return _elm_lang$core$Maybe$Just(_p16._0);
+		} else {
+			return _elm_lang$core$Maybe$Nothing;
+		}
+	});
+var _user$project$Canvas_Program$collectDoubleClickEvents = _user$project$Canvas_Program$collectMouseEvents(
+	function (e) {
+		var _p17 = e;
+		if (_p17.ctor === 'DoubleClickE') {
+			return _elm_lang$core$Maybe$Just(_p17._0);
+		} else {
+			return _elm_lang$core$Maybe$Nothing;
+		}
 	});
 var _user$project$Canvas_Program$positionFrom = F2(
 	function (from, options) {
@@ -9340,17 +9427,14 @@ var _user$project$Canvas_Program$positionFrom = F2(
 	});
 var _user$project$Canvas_Program$sortByZIndexHelp = F4(
 	function (from, parents, element, prev) {
-		var _p11 = element;
-		if (_p11.ctor === 'Element') {
-			var _p12 = _p11._0;
-			var absPosition = A2(_user$project$Canvas_Program$positionFrom, from, _p12);
+		var _p18 = element;
+		if (_p18.ctor === 'Element') {
+			var _p19 = _p18._0;
+			var absPosition = A2(_user$project$Canvas_Program$positionFrom, from, _p19);
 			var paddedAbsPosition = A2(
 				_user$project$Canvas_Position_ops['<+>'],
 				absPosition,
-				A2(
-					_elm_lang$core$Maybe$withDefault,
-					{x: 0, y: 0},
-					_p12.padding));
+				A2(_elm_lang$core$Maybe$withDefault, _user$project$Canvas_Position$zero, _p19.padding));
 			return A2(
 				_elm_lang$core$Basics_ops['++'],
 				A3(
@@ -9358,12 +9442,20 @@ var _user$project$Canvas_Program$sortByZIndexHelp = F4(
 					A2(
 						_user$project$Canvas_Program$sortByZIndexHelp,
 						paddedAbsPosition,
-						{ctor: '::', _0: element, _1: parents}),
+						{
+							ctor: '::',
+							_0: {ctor: '_Tuple2', _0: absPosition, _1: element},
+							_1: parents
+						}),
 					prev,
-					_p11._1),
+					_p18._1),
 				{
 					ctor: '::',
-					_0: {ctor: '_Tuple3', _0: absPosition, _1: element, _2: parents},
+					_0: {
+						ctor: '_Tuple2',
+						_0: {ctor: '_Tuple2', _0: absPosition, _1: element},
+						_1: parents
+					},
 					_1: {ctor: '[]'}
 				});
 		} else {
@@ -9378,20 +9470,6 @@ var _user$project$Canvas_Program$sortByZIndex = function (element) {
 		element,
 		{ctor: '[]'});
 };
-var _user$project$Canvas_Program$handleClickEvents = F2(
-	function (element, position) {
-		var sorted = _user$project$Canvas_Program$sortByZIndex(element);
-		return A2(
-			_elm_lang$core$Maybe$withDefault,
-			{ctor: '[]'},
-			A2(
-				_elm_lang$core$Maybe$map,
-				function (_p13) {
-					var _p14 = _p13;
-					return A2(_user$project$Canvas_Program$collectEvents, _p14._1, _p14._2);
-				},
-				A2(_user$project$Canvas_Program$findMouseEventTarget, position, sorted)));
-	});
 var _user$project$Canvas_Program$encodeShadow = function (shadow) {
 	return A2(
 		_elm_lang$core$Maybe$withDefault,
@@ -9468,18 +9546,18 @@ var _user$project$Canvas_Program$encodeBorder = function (border) {
 };
 var _user$project$Canvas_Program$toOutputHelp = F2(
 	function (context, element) {
-		var _p15 = element;
-		if (_p15.ctor === 'Element') {
-			var _p16 = _p15._0;
-			var size = _user$project$Canvas_Program$sizeOf(_p16);
-			var position = A2(_user$project$Canvas_Program$positionFrom, context.position, _p16);
+		var _p20 = element;
+		if (_p20.ctor === 'Element') {
+			var _p21 = _p20._0;
+			var size = _user$project$Canvas_Program$sizeOf(_p21);
+			var position = A2(_user$project$Canvas_Program$positionFrom, context.position, _p21);
 			var newContext = _elm_lang$core$Native_Utils.update(
 				context,
 				{
 					position: A2(
 						_user$project$Canvas_Position_ops['<+>'],
 						position,
-						A2(_elm_lang$core$Maybe$withDefault, _user$project$Canvas_Position$zero, _p16.padding))
+						A2(_elm_lang$core$Maybe$withDefault, _user$project$Canvas_Position$zero, _p21.padding))
 				});
 			var value = _elm_lang$core$Json_Encode$object(
 				{
@@ -9546,21 +9624,21 @@ var _user$project$Canvas_Program$toOutputHelp = F2(
 										A2(
 											_elm_lang$core$Maybe$withDefault,
 											'#000',
-											A2(_elm_lang$core$Maybe$map, _user$project$Canvas_Program$fromColor, _p16.color)))
+											A2(_elm_lang$core$Maybe$map, _user$project$Canvas_Program$fromColor, _p21.color)))
 								},
 								_1: {
 									ctor: '::',
 									_0: {
 										ctor: '_Tuple2',
 										_0: 'border',
-										_1: _user$project$Canvas_Program$encodeBorder(_p16.border)
+										_1: _user$project$Canvas_Program$encodeBorder(_p21.border)
 									},
 									_1: {
 										ctor: '::',
 										_0: {
 											ctor: '_Tuple2',
 											_0: 'shadow',
-											_1: _user$project$Canvas_Program$encodeShadow(_p16.shadow)
+											_1: _user$project$Canvas_Program$encodeShadow(_p21.shadow)
 										},
 										_1: {
 											ctor: '::',
@@ -9571,7 +9649,7 @@ var _user$project$Canvas_Program$toOutputHelp = F2(
 													A2(
 														_elm_lang$core$Maybe$withDefault,
 														'transparent',
-														A2(_elm_lang$core$Maybe$map, _user$project$Canvas_Program$fromColor, _p16.backgroundColor)))
+														A2(_elm_lang$core$Maybe$map, _user$project$Canvas_Program$fromColor, _p21.backgroundColor)))
 											},
 											_1: {ctor: '[]'}
 										}
@@ -9587,7 +9665,7 @@ var _user$project$Canvas_Program$toOutputHelp = F2(
 				_1: A2(
 					_elm_lang$core$List$concatMap,
 					_user$project$Canvas_Program$toOutputHelp(newContext),
-					_p15._1)
+					_p20._1)
 			};
 		} else {
 			var position = context.position;
@@ -9635,7 +9713,7 @@ var _user$project$Canvas_Program$toOutputHelp = F2(
 								_0: {
 									ctor: '_Tuple2',
 									_0: 'content',
-									_1: _elm_lang$core$Json_Encode$string(_p15._0)
+									_1: _elm_lang$core$Json_Encode$string(_p20._0)
 								},
 								_1: {ctor: '[]'}
 							}
@@ -9657,9 +9735,22 @@ var _user$project$Canvas_Program$toOutput = F2(
 			elements: A2(_user$project$Canvas_Program$toOutputHelp, _user$project$Canvas_Program$initialContext, element)
 		};
 	});
-var _user$project$Canvas_Program$Model = F2(
-	function (a, b) {
-		return {userModel: a, element: b};
+var _user$project$Canvas_Program$mouseEvent = A5(
+	_elm_lang$core$Json_Decode$map4,
+	F4(
+		function (offsetX, offsetY, pageX, pageY) {
+			return {
+				offset: {x: offsetX, y: offsetY},
+				page: {x: pageX, y: pageY}
+			};
+		}),
+	A2(_elm_lang$core$Json_Decode$field, 'offsetX', _elm_lang$core$Json_Decode$int),
+	A2(_elm_lang$core$Json_Decode$field, 'offsetY', _elm_lang$core$Json_Decode$int),
+	A2(_elm_lang$core$Json_Decode$field, 'pageX', _elm_lang$core$Json_Decode$int),
+	A2(_elm_lang$core$Json_Decode$field, 'pageY', _elm_lang$core$Json_Decode$int));
+var _user$project$Canvas_Program$Model = F3(
+	function (a, b, c) {
+		return {userModel: a, element: b, zSorted: c};
 	});
 var _user$project$Canvas_Program$Ports = F2(
 	function (a, b) {
@@ -9677,32 +9768,127 @@ var _user$project$Canvas_Program$Config = F6(
 	function (a, b, c, d, e, f) {
 		return {init: a, update: b, view: c, canvasId: d, canvasView: e, subscriptions: f};
 	});
+var _user$project$Canvas_Program$OriginalMouseEvent = F2(
+	function (a, b) {
+		return {page: a, offset: b};
+	});
 var _user$project$Canvas_Program$Context = function (a) {
 	return {position: a};
 };
-var _user$project$Canvas_Program$MouseClick = function (a) {
-	return {ctor: 'MouseClick', _0: a};
+var _user$project$Canvas_Program$DoubleClick = function (a) {
+	return {ctor: 'DoubleClick', _0: a};
 };
-var _user$project$Canvas_Program$subscriptions = _elm_lang$core$Platform_Sub$batch(
-	{
-		ctor: '::',
-		_0: _elm_lang$mouse$Mouse$clicks(_user$project$Canvas_Program$MouseClick),
-		_1: {ctor: '[]'}
-	});
+var _user$project$Canvas_Program$Click = function (a) {
+	return {ctor: 'Click', _0: a};
+};
+var _user$project$Canvas_Program$MouseUp = function (a) {
+	return {ctor: 'MouseUp', _0: a};
+};
+var _user$project$Canvas_Program$MouseDown = function (a) {
+	return {ctor: 'MouseDown', _0: a};
+};
+var _user$project$Canvas_Program$fromInput = function (input) {
+	if (_elm_lang$core$Native_Utils.eq(input.type_, 'mousedown')) {
+		var _p22 = A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$Canvas_Program$mouseEvent, input.data);
+		if (_p22.ctor === 'Ok') {
+			return _user$project$Canvas_Program$MouseDown(_p22._0);
+		} else {
+			return _elm_lang$core$Native_Utils.crashCase(
+				'Canvas.Program',
+				{
+					start: {line: 152, column: 5},
+					end: {line: 154, column: 39}
+				},
+				_p22)('cannot decode');
+		}
+	} else {
+		if (_elm_lang$core$Native_Utils.eq(input.type_, 'mouseup')) {
+			var _p24 = A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$Canvas_Program$mouseEvent, input.data);
+			if (_p24.ctor === 'Ok') {
+				return _user$project$Canvas_Program$MouseUp(_p24._0);
+			} else {
+				return _elm_lang$core$Native_Utils.crashCase(
+					'Canvas.Program',
+					{
+						start: {line: 156, column: 5},
+						end: {line: 158, column: 39}
+					},
+					_p24)('cannot decode');
+			}
+		} else {
+			if (_elm_lang$core$Native_Utils.eq(input.type_, 'click')) {
+				var _p26 = A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$Canvas_Program$mouseEvent, input.data);
+				if (_p26.ctor === 'Ok') {
+					return _user$project$Canvas_Program$Click(_p26._0);
+				} else {
+					return _elm_lang$core$Native_Utils.crashCase(
+						'Canvas.Program',
+						{
+							start: {line: 160, column: 5},
+							end: {line: 162, column: 39}
+						},
+						_p26)('cannot decode');
+				}
+			} else {
+				if (_elm_lang$core$Native_Utils.eq(input.type_, 'dblclick')) {
+					var _p28 = A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$Canvas_Program$mouseEvent, input.data);
+					if (_p28.ctor === 'Ok') {
+						return _user$project$Canvas_Program$DoubleClick(_p28._0);
+					} else {
+						return _elm_lang$core$Native_Utils.crashCase(
+							'Canvas.Program',
+							{
+								start: {line: 164, column: 5},
+								end: {line: 166, column: 39}
+							},
+							_p28)('cannot decode');
+					}
+				} else {
+					return _elm_lang$core$Native_Utils.crash(
+						'Canvas.Program',
+						{
+							start: {line: 168, column: 5},
+							end: {line: 168, column: 16}
+						})(
+						A2(_elm_lang$core$Basics_ops['++'], 'undefined input type: ', input.type_));
+				}
+			}
+		}
+	}
+};
+var _user$project$Canvas_Program$subscriptions = function (ports) {
+	return ports.input(_user$project$Canvas_Program$fromInput);
+};
 var _user$project$Canvas_Program$UserMsg = function (a) {
 	return {ctor: 'UserMsg', _0: a};
+};
+var _user$project$Canvas_Program$toUserMsgCmd = function (messages) {
+	return _elm_lang$core$Platform_Cmd$batch(
+		A2(
+			_elm_lang$core$List$map,
+			function (_p30) {
+				return A2(
+					_elm_lang$core$Task$perform,
+					_user$project$Canvas_Program$UserMsg,
+					_elm_lang$core$Task$succeed(_p30));
+			},
+			messages));
 };
 var _user$project$Canvas_Program$NoOp = {ctor: 'NoOp'};
 var _user$project$Canvas_Program$init = F2(
 	function (ports, config) {
-		var _p17 = config.init;
-		var initUserModel = _p17._0;
-		var initUserCmd = _p17._1;
+		var _p31 = config.init;
+		var initUserModel = _p31._0;
+		var initUserCmd = _p31._1;
 		var element = config.canvasView(initUserModel);
 		var output = A2(_user$project$Canvas_Program$toOutput, config.canvasId, element);
 		return A2(
 			_elm_lang$core$Platform_Cmd_ops['!'],
-			{userModel: initUserModel, element: element},
+			{
+				userModel: initUserModel,
+				element: element,
+				zSorted: _user$project$Canvas_Program$sortByZIndex(element)
+			},
 			{
 				ctor: '::',
 				_0: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Canvas_Program$UserMsg, initUserCmd),
@@ -9718,21 +9904,25 @@ var _user$project$Canvas_Program$init = F2(
 	});
 var _user$project$Canvas_Program$update = F4(
 	function (ports, config, msg, model) {
-		var _p18 = msg;
-		switch (_p18.ctor) {
+		var _p32 = msg;
+		switch (_p32.ctor) {
 			case 'NoOp':
 				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 			case 'UserMsg':
-				var _p19 = A2(config.update, _p18._0, model.userModel);
-				var userModel = _p19._0;
-				var userCmd = _p19._1;
+				var _p33 = A2(config.update, _p32._0, model.userModel);
+				var userModel = _p33._0;
+				var userCmd = _p33._1;
 				var element = config.canvasView(userModel);
 				var output = A2(_user$project$Canvas_Program$toOutput, config.canvasId, element);
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
 					_elm_lang$core$Native_Utils.update(
 						model,
-						{userModel: userModel, element: element}),
+						{
+							userModel: userModel,
+							element: element,
+							zSorted: _user$project$Canvas_Program$sortByZIndex(element)
+						}),
 					{
 						ctor: '::',
 						_0: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Canvas_Program$UserMsg, userCmd),
@@ -9745,25 +9935,56 @@ var _user$project$Canvas_Program$update = F4(
 							_1: {ctor: '[]'}
 						}
 					});
+			case 'MouseDown':
+				var _p34 = _p32._0;
+				return {
+					ctor: '_Tuple2',
+					_0: model,
+					_1: _user$project$Canvas_Program$toUserMsgCmd(
+						A3(_user$project$Canvas_Program$collectMouseDownEvents, _p34, model.zSorted, _p34.offset))
+				};
+			case 'MouseUp':
+				var _p35 = _p32._0;
+				return {
+					ctor: '_Tuple2',
+					_0: model,
+					_1: _user$project$Canvas_Program$toUserMsgCmd(
+						A3(_user$project$Canvas_Program$collectMouseUpEvents, _p35, model.zSorted, _p35.offset))
+				};
+			case 'Click':
+				var _p36 = _p32._0;
+				return {
+					ctor: '_Tuple2',
+					_0: model,
+					_1: _user$project$Canvas_Program$toUserMsgCmd(
+						A3(_user$project$Canvas_Program$collectClickEvents, _p36, model.zSorted, _p36.offset))
+				};
 			default:
-				var events = A2(_user$project$Canvas_Program$handleClickEvents, model.element, _p18._0);
-				var cmd = _elm_lang$core$Platform_Cmd$batch(
-					A2(
-						_elm_lang$core$List$map,
-						function (_p20) {
-							return A2(
-								_elm_lang$core$Task$perform,
-								_user$project$Canvas_Program$UserMsg,
-								_elm_lang$core$Task$succeed(_p20));
-						},
-						events));
-				return {ctor: '_Tuple2', _0: model, _1: cmd};
+				var _p37 = _p32._0;
+				return {
+					ctor: '_Tuple2',
+					_0: model,
+					_1: _user$project$Canvas_Program$toUserMsgCmd(
+						A3(_user$project$Canvas_Program$collectDoubleClickEvents, _p37, model.zSorted, _p37.offset))
+				};
 		}
 	});
 
-var _user$project$Canvas$onClick = function (_p0) {
+var _user$project$Canvas$onDoubleClick = function (_p0) {
 	return _user$project$Canvas_Model$EventA(
-		_user$project$Canvas_Model$Click(_p0));
+		_user$project$Canvas_Model$DoubleClickE(_p0));
+};
+var _user$project$Canvas$onClick = function (_p1) {
+	return _user$project$Canvas_Model$EventA(
+		_user$project$Canvas_Model$ClickE(_p1));
+};
+var _user$project$Canvas$onMouseUp = function (_p2) {
+	return _user$project$Canvas_Model$EventA(
+		_user$project$Canvas_Model$MouseUpE(_p2));
+};
+var _user$project$Canvas$onMouseDown = function (_p3) {
+	return _user$project$Canvas_Model$EventA(
+		_user$project$Canvas_Model$MouseDownE(_p3));
 };
 var _user$project$Canvas$padding = F2(
 	function (x, y) {
@@ -9812,7 +10033,7 @@ var _user$project$Canvas$program = F2(
 						options.subscriptions(model.userModel)),
 					_1: {
 						ctor: '::',
-						_0: _user$project$Canvas_Program$subscriptions,
+						_0: _user$project$Canvas_Program$subscriptions(ports),
 						_1: {ctor: '[]'}
 					}
 				});
@@ -9856,32 +10077,18 @@ var _user$project$Main$view = function (model) {
 		},
 		{ctor: '[]'});
 };
-var _user$project$Main$subscriptions = function (_p0) {
-	return _elm_lang$core$Platform_Sub$none;
+var _user$project$Main$getPosition = function (_p0) {
+	var _p1 = _p0;
+	var _p5 = _p1.position;
+	var _p2 = _p1.drag;
+	if (_p2.ctor === 'Nothing') {
+		return _p5;
+	} else {
+		var _p4 = _p2._0.start;
+		var _p3 = _p2._0.current;
+		return A2(_elm_lang$mouse$Mouse$Position, (_p5.x + _p3.x) - _p4.x, (_p5.y + _p3.y) - _p4.y);
+	}
 };
-var _user$project$Main$update = F2(
-	function (msg, model) {
-		var _p1 = msg;
-		if (_p1.ctor === 'Increment') {
-			return A2(
-				_elm_lang$core$Platform_Cmd_ops['!'],
-				_elm_lang$core$Native_Utils.update(
-					model,
-					{count: model.count + 1}),
-				{ctor: '[]'});
-		} else {
-			return A2(
-				_elm_lang$core$Platform_Cmd_ops['!'],
-				_elm_lang$core$Native_Utils.update(
-					model,
-					{count: model.count - 1}),
-				{ctor: '[]'});
-		}
-	});
-var _user$project$Main$init = A2(
-	_elm_lang$core$Platform_Cmd_ops['!'],
-	{count: 0},
-	{ctor: '[]'});
 var _user$project$Main$input = _elm_lang$core$Native_Platform.incomingPort(
 	'input',
 	A2(
@@ -9907,151 +10114,123 @@ var _user$project$Main$output = _elm_lang$core$Native_Platform.outgoingPort(
 				})
 		};
 	});
-var _user$project$Main$Model = function (a) {
-	return {count: a};
+var _user$project$Main$Model = F2(
+	function (a, b) {
+		return {position: a, drag: b};
+	});
+var _user$project$Main$init = {
+	ctor: '_Tuple2',
+	_0: A2(
+		_user$project$Main$Model,
+		A2(_elm_lang$mouse$Mouse$Position, 200, 200),
+		_elm_lang$core$Maybe$Nothing),
+	_1: _elm_lang$core$Platform_Cmd$none
 };
-var _user$project$Main$Decrement = {ctor: 'Decrement'};
-var _user$project$Main$Increment = {ctor: 'Increment'};
+var _user$project$Main$Drag = F2(
+	function (a, b) {
+		return {start: a, current: b};
+	});
+var _user$project$Main$updateHelp = F2(
+	function (msg, _p6) {
+		var _p7 = _p6;
+		var _p12 = _p7.position;
+		var _p8 = msg;
+		switch (_p8.ctor) {
+			case 'DragStart':
+				var _p9 = _p8._0;
+				return A2(
+					_user$project$Main$Model,
+					_p12,
+					_elm_lang$core$Maybe$Just(
+						A2(_user$project$Main$Drag, _p9, _p9)));
+			case 'DragAt':
+				return A2(
+					_user$project$Main$Model,
+					_p12,
+					A2(
+						_elm_lang$core$Maybe$map,
+						function (_p10) {
+							var _p11 = _p10;
+							return A2(_user$project$Main$Drag, _p11.start, _p8._0);
+						},
+						_p7.drag));
+			default:
+				return A2(
+					_user$project$Main$Model,
+					_user$project$Main$getPosition(_p7),
+					_elm_lang$core$Maybe$Nothing);
+		}
+	});
+var _user$project$Main$update = F2(
+	function (msg, model) {
+		return {
+			ctor: '_Tuple2',
+			_0: A2(_user$project$Main$updateHelp, msg, model),
+			_1: _elm_lang$core$Platform_Cmd$none
+		};
+	});
+var _user$project$Main$DragEnd = function (a) {
+	return {ctor: 'DragEnd', _0: a};
+};
+var _user$project$Main$DragAt = function (a) {
+	return {ctor: 'DragAt', _0: a};
+};
+var _user$project$Main$subscriptions = function (model) {
+	var _p13 = model.drag;
+	if (_p13.ctor === 'Nothing') {
+		return _elm_lang$core$Platform_Sub$none;
+	} else {
+		return _elm_lang$core$Platform_Sub$batch(
+			{
+				ctor: '::',
+				_0: _elm_lang$mouse$Mouse$moves(_user$project$Main$DragAt),
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$mouse$Mouse$ups(_user$project$Main$DragEnd),
+					_1: {ctor: '[]'}
+				}
+			});
+	}
+};
+var _user$project$Main$DragStart = function (a) {
+	return {ctor: 'DragStart', _0: a};
+};
 var _user$project$Main$canvasView = function (model) {
+	var realPosition = _user$project$Main$getPosition(model);
 	return A2(
 		_user$project$Canvas$element,
 		{
 			ctor: '::',
-			_0: A2(_user$project$Canvas$size, 660, 460),
+			_0: _user$project$Canvas$onMouseDown(
+				function (_p14) {
+					return _user$project$Main$DragStart(
+						function (_) {
+							return _.page;
+						}(_p14));
+				}),
 			_1: {
 				ctor: '::',
-				_0: A2(_user$project$Canvas$position, 80, 80),
+				_0: _user$project$Canvas$backgroundColor(
+					A3(_elm_lang$core$Color$rgb, 60, 141, 47)),
 				_1: {
 					ctor: '::',
-					_0: _user$project$Canvas$backgroundColor(_elm_lang$core$Color$lightBrown),
-					_1: {ctor: '[]'}
+					_0: A2(_user$project$Canvas$size, 100, 100),
+					_1: {
+						ctor: '::',
+						_0: A2(_user$project$Canvas$position, realPosition.x, realPosition.y),
+						_1: {
+							ctor: '::',
+							_0: _user$project$Canvas$color(_elm_lang$core$Color$white),
+							_1: {ctor: '[]'}
+						}
+					}
 				}
 			}
 		},
 		{
 			ctor: '::',
-			_0: A2(
-				_user$project$Canvas$element,
-				{
-					ctor: '::',
-					_0: A2(_user$project$Canvas$padding, 5, 5),
-					_1: {
-						ctor: '::',
-						_0: A2(_user$project$Canvas$size, 30, 30),
-						_1: {
-							ctor: '::',
-							_0: A2(_user$project$Canvas$position, 325, 130),
-							_1: {
-								ctor: '::',
-								_0: _user$project$Canvas$backgroundColor(_elm_lang$core$Color$green),
-								_1: {
-									ctor: '::',
-									_0: _user$project$Canvas$onClick(_user$project$Main$Increment),
-									_1: {
-										ctor: '::',
-										_0: _user$project$Canvas$onClick(_user$project$Main$Increment),
-										_1: {ctor: '[]'}
-									}
-								}
-							}
-						}
-					}
-				},
-				{
-					ctor: '::',
-					_0: _user$project$Canvas$text('Increment'),
-					_1: {ctor: '[]'}
-				}),
-			_1: {
-				ctor: '::',
-				_0: A2(
-					_user$project$Canvas$element,
-					{
-						ctor: '::',
-						_0: A2(_user$project$Canvas$padding, 10, 10),
-						_1: {
-							ctor: '::',
-							_0: A2(_user$project$Canvas$size, 120, 80),
-							_1: {
-								ctor: '::',
-								_0: A2(_user$project$Canvas$position, 25, 30),
-								_1: {
-									ctor: '::',
-									_0: _user$project$Canvas$backgroundColor(_elm_lang$core$Color$red),
-									_1: {
-										ctor: '::',
-										_0: _user$project$Canvas$onClick(_user$project$Main$Decrement),
-										_1: {ctor: '[]'}
-									}
-								}
-							}
-						}
-					},
-					{
-						ctor: '::',
-						_0: _user$project$Canvas$text('Decrement'),
-						_1: {
-							ctor: '::',
-							_0: A2(
-								_user$project$Canvas$element,
-								{
-									ctor: '::',
-									_0: A2(_user$project$Canvas$size, 60, 60),
-									_1: {
-										ctor: '::',
-										_0: A2(_user$project$Canvas$position, 40, 40),
-										_1: {
-											ctor: '::',
-											_0: _user$project$Canvas$backgroundColor(_elm_lang$core$Color$lightPurple),
-											_1: {
-												ctor: '::',
-												_0: A2(
-													_user$project$Canvas$border,
-													3,
-													A3(_elm_lang$core$Color$rgb, 30, 50, 230)),
-												_1: {
-													ctor: '::',
-													_0: _user$project$Canvas$onClick(_user$project$Main$Decrement),
-													_1: {ctor: '[]'}
-												}
-											}
-										}
-									}
-								},
-								{ctor: '[]'}),
-							_1: {ctor: '[]'}
-						}
-					}),
-				_1: {
-					ctor: '::',
-					_0: A2(
-						_user$project$Canvas$element,
-						{
-							ctor: '::',
-							_0: A2(_user$project$Canvas$size, 120, 80),
-							_1: {
-								ctor: '::',
-								_0: A2(_user$project$Canvas$position, 205 + (model.count * 30), 300),
-								_1: {
-									ctor: '::',
-									_0: _user$project$Canvas$backgroundColor(_elm_lang$core$Color$blue),
-									_1: {
-										ctor: '::',
-										_0: A4(
-											_user$project$Canvas$shadow,
-											10,
-											5,
-											5,
-											A3(_elm_lang$core$Color$rgb, 70, 0, 0)),
-										_1: {ctor: '[]'}
-									}
-								}
-							}
-						},
-						{ctor: '[]'}),
-					_1: {ctor: '[]'}
-				}
-			}
+			_0: _user$project$Canvas$text('Drag Me!'),
+			_1: {ctor: '[]'}
 		});
 };
 var _user$project$Main$main = A2(

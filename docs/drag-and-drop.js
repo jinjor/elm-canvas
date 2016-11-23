@@ -9341,8 +9341,8 @@ var _user$project$Canvas_Element$collectEventsHelp = F4(
 			return _elm_lang$core$Native_Utils.crashCase(
 				'Canvas.Element',
 				{
-					start: {line: 198, column: 3},
-					end: {line: 213, column: 59}
+					start: {line: 204, column: 3},
+					end: {line: 219, column: 59}
 				},
 				_p6)('text cannot be a target or its parents');
 		}
@@ -9416,6 +9416,7 @@ var _user$project$Canvas_Element$formatNode = F2(
 		var _p15 = element;
 		if (_p15.ctor === 'Element') {
 			var _p16 = _p15._0;
+			var padding = A2(_elm_lang$core$Maybe$withDefault, _user$project$Canvas_Basics$zeroPosition, _p16.padding);
 			var backgroundColor = A2(_elm_lang$core$Maybe$withDefault, _user$project$Canvas_Basics$transparent, _p16.backgroundColor);
 			var size = A2(
 				_elm_lang$core$Maybe$withDefault,
@@ -9425,15 +9426,13 @@ var _user$project$Canvas_Element$formatNode = F2(
 				_user$project$Canvas_Basics_ops['<+>'],
 				context.position,
 				A2(_elm_lang$core$Maybe$withDefault, _user$project$Canvas_Basics$zeroPosition, _p16.position));
+			var value = A5(_user$project$Canvas_Basics$ElementF, position, size, _p16.border, _p16.shadow, backgroundColor);
 			var newContext = _elm_lang$core$Native_Utils.update(
 				context,
 				{
-					position: A2(
-						_user$project$Canvas_Basics_ops['<+>'],
-						position,
-						A2(_elm_lang$core$Maybe$withDefault, _user$project$Canvas_Basics$zeroPosition, _p16.padding))
+					position: A2(_user$project$Canvas_Basics_ops['<+>'], position, padding),
+					color: A2(_elm_lang$core$Maybe$withDefault, context.color, _p16.color)
 				});
-			var value = A5(_user$project$Canvas_Basics$ElementF, position, size, _p16.border, _p16.shadow, backgroundColor);
 			return {
 				ctor: '::',
 				_0: value,
@@ -9444,7 +9443,7 @@ var _user$project$Canvas_Element$formatNode = F2(
 			};
 		} else {
 			var position = context.position;
-			var value = A3(_user$project$Canvas_Basics$TextF, position, _elm_lang$core$Color$black, _p15._0);
+			var value = A3(_user$project$Canvas_Basics$TextF, position, context.color, _p15._0);
 			return {
 				ctor: '::',
 				_0: value,
@@ -9452,7 +9451,7 @@ var _user$project$Canvas_Element$formatNode = F2(
 			};
 		}
 	});
-var _user$project$Canvas_Element$initialContext = {position: _user$project$Canvas_Basics$zeroPosition};
+var _user$project$Canvas_Element$initialContext = {position: _user$project$Canvas_Basics$zeroPosition, color: _elm_lang$core$Color$black};
 var _user$project$Canvas_Element$sortByZIndexHelp = F4(
 	function (from, parents, element, prev) {
 		var _p17 = element;
@@ -9501,9 +9500,10 @@ var _user$project$Canvas_Element$sortByZIndex = function (element) {
 		element,
 		{ctor: '[]'});
 };
-var _user$project$Canvas_Element$Context = function (a) {
-	return {position: a};
-};
+var _user$project$Canvas_Element$Context = F2(
+	function (a, b) {
+		return {position: a, color: b};
+	});
 var _user$project$Canvas_Element$Text = function (a) {
 	return {ctor: 'Text', _0: a};
 };

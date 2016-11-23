@@ -53,12 +53,14 @@ sortByZIndexHelp from parents element prev =
 
 type alias Context =
   { position : Position
+  , color : Color
   }
 
 
 initialContext : Context
 initialContext =
   { position = zeroPosition
+  , color = Color.black
   }
 
 
@@ -73,14 +75,20 @@ formatNode context element =
         size =
           properties.size |> Maybe.withDefault { width = 0, height = 0 }
 
-        newContext =
-          { context | position = position <+> Maybe.withDefault zeroPosition properties.padding }
-
         backgroundColor =
           properties.backgroundColor |> Maybe.withDefault transparent
 
+        padding =
+          Maybe.withDefault zeroPosition properties.padding
+
         value =
           ElementF position size properties.border properties.shadow backgroundColor
+
+        newContext =
+          { context
+            | position = position <+> padding
+            , color = Maybe.withDefault context.color properties.color
+          }
       in
         value :: List.concatMap (formatNode newContext) children
 
@@ -90,7 +98,7 @@ formatNode context element =
           context.position
 
         value =
-          TextF position Color.black content
+          TextF position context.color content
       in
         [ value ]
 

@@ -1,20 +1,34 @@
-module Canvas.Model exposing (..)
-
+module Canvas.Properties exposing (..)
 
 import Color exposing (..)
 
-import Canvas.Position as Position exposing (..)
+import Canvas.Basics as Basics exposing (..)
+import Canvas.Event as Event exposing (..)
 
 
-type alias Size =
-  { width : Int
-  , height : Int
+type alias Properties msg =
+  { position : Maybe Position
+  , size : Maybe Size
+  , border : Maybe Border
+  , shadow : Maybe Shadow
+  , color : Maybe Color
+  , backgroundColor : Maybe Color
+  , padding : Maybe Position
+  , events : List (Event msg)
   }
 
 
-type Element msg
-  = Element (Options msg) (List (Element msg))
-  | Text String
+default : Properties msg
+default =
+  { position = Nothing
+  , size = Nothing
+  , border = Nothing
+  , shadow = Nothing
+  , color = Nothing
+  , backgroundColor = Nothing
+  , padding = Nothing
+  , events = []
+  }
 
 
 type Attribute msg
@@ -28,65 +42,8 @@ type Attribute msg
   | EventA (Event msg)
 
 
-type alias Options msg =
-  { position : Maybe Position
-  , size : Maybe Size
-  , border : Maybe Border
-  , shadow : Maybe Shadow
-  , color : Maybe Color
-  , backgroundColor : Maybe Color
-  , padding : Maybe Position
-  , events : List (Event msg)
-  }
-
-
-type alias Border =
-  { width : Int
-  , color : Color
-  }
-
-
-type alias Shadow =
-  { blur : Int
-  , offsetX : Int
-  , offsetY : Int
-  , color : Color
-  }
-
-
-
-type alias MouseEvent =
-  { page : Position
-  , canvas : Position
-  , offset : Position
-  }
-
-
-type Event msg
-  = MouseDownE (MouseEvent -> msg)
-  | MouseUpE (MouseEvent -> msg)
-  | ClickE (MouseEvent -> msg)
-  | DoubleClickE (MouseEvent -> msg)
-
-
-----
-
-
-defaultOptions : Options msg
-defaultOptions =
-  { position = Nothing
-  , size = Nothing
-  , border = Nothing
-  , shadow = Nothing
-  , color = Nothing
-  , backgroundColor = Nothing
-  , padding = Nothing
-  , events = []
-  }
-
-
-makeOptions : List (Attribute msg) -> Options msg
-makeOptions attrs =
+fromAttributes : List (Attribute msg) -> Properties msg
+fromAttributes attrs =
   attrs
     |> List.foldl
       (\attr op ->
@@ -115,4 +72,4 @@ makeOptions attrs =
           EventA event ->
             { op | events = event :: op.events }
       )
-      defaultOptions
+      default

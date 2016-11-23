@@ -1,7 +1,6 @@
 port module DragAndDrop exposing (..)
 
 import Color
-import Time
 import Html exposing (Html)
 import Html.Attributes as A
 import Canvas exposing (..)

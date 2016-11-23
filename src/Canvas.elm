@@ -3,19 +3,27 @@ module Canvas exposing (..)
 import Color exposing (Color)
 import Html exposing (Html)
 
-import Canvas.Model as Model exposing (..)
+
+import Canvas.Element as Element exposing (..)
+import Canvas.Properties as Properties exposing (..)
+import Canvas.Event as Event exposing (..)
 import Canvas.Program as Program exposing (..)
+import Canvas.Ports as Ports
 
 
 -- PROGRAM
 
 
+type alias Ports msg
+  = Ports.Ports (Msg msg)
+
+
 type alias Input
-  = Program.Input
+  = Ports.Input
 
 
 type alias Output
-  = Program.Output
+  = Ports.Output
 
 
 type alias Msg msg
@@ -60,7 +68,7 @@ program ports options =
 
 
 type alias Element msg =
-  Model.Element msg
+  Element.Element msg
 
 
 text : String -> Element msg
@@ -69,15 +77,11 @@ text = Text
 
 element : List (Attribute msg) -> List (Element msg) -> Element msg
 element attrs children =
-  Element (makeOptions attrs) children
+  Element (fromAttributes attrs) children
 
 
 
 -- ATTRIBUTES
-
-
-type alias Attribute msg =
-  Model.Attribute msg
 
 
 position : Int -> Int -> Attribute msg

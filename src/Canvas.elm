@@ -103,10 +103,6 @@ shadow blur offsetX offsetY color =
   ShadowA { blur = blur, offsetX = offsetX, offsetY = offsetY, color = color }
 
 
-color : Color -> Attribute msg
-color = ColorA
-
-
 backgroundColor : Color -> Attribute msg
 backgroundColor = BackgroundColorA
 
@@ -115,25 +111,49 @@ padding : Int -> Int -> Attribute msg
 padding x y = PaddingA { x = x, y = y }
 
 
+color : Color -> Attribute msg
+color = ColorA
+
+
+fontWeight : String -> Attribute msg
+fontWeight = FontWeightA
+
+
+fontFamily : String -> Attribute msg
+fontFamily = FontFamilyA
+
+
+fontSize : Int -> Attribute msg
+fontSize = FontSizeA
+
+
 
 -- EVENTS
 
 
 onMouseDown : (MouseEvent -> msg) -> Attribute msg
 onMouseDown =
-  EventA << MouseDownE
+  EventA << MouseDownE Event.defaultPropagation
 
 
 onMouseUp : (MouseEvent -> msg) -> Attribute msg
 onMouseUp =
-  EventA << MouseUpE
+  EventA << MouseUpE Event.defaultPropagation
 
 
 onClick : (MouseEvent -> msg) -> Attribute msg
 onClick =
-  EventA << ClickE
+  EventA << ClickE Event.defaultPropagation
 
 
 onDoubleClick : (MouseEvent -> msg) -> Attribute msg
 onDoubleClick =
-  EventA << DoubleClickE
+  EventA << DoubleClickE Event.defaultPropagation
+
+
+stopPropagationIf : (MouseEvent -> Bool) -> Event msg -> Event msg
+stopPropagationIf = setStopPropagation
+
+
+stopPropagation : Event msg -> Event msg
+stopPropagation = setStopPropagation (always True)

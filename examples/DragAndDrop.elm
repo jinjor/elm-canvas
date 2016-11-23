@@ -106,6 +106,8 @@ canvasView model =
       , size 100 100
       , position realPosition.x realPosition.y
       , color Color.white
+      , fontSize 16
+      , fontFamily "'Source Sans Pro', 'Trebuchet MS', 'Lucida Grande', 'Bitstream Vera Sans', 'Helvetica Neue', sans-serif"
       ]
       [ text "Drag Me!" ]
 

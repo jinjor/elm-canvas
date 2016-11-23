@@ -37,7 +37,7 @@ function init(input, output) {
           ctx.fillStyle = el.backgroundColor;
           ctx.fillRect(el.position.x, el.position.y, el.size.width, el.size.height);
         } else if (el.type === 'text') {
-          ctx.font = "14px calibri";
+          ctx.font = el.fontWeight + ' ' + el.fontSize + 'px ' + el.fontFamily;
           ctx.textBaseline = 'top';
           ctx.fillStyle = el.color;
           ctx.fillText(el.content, el.position.x, el.position.y);

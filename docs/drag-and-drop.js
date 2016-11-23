@@ -9173,40 +9173,62 @@ var _user$project$Canvas_Basics$OriginalMouseEvent = F2(
 	function (a, b) {
 		return {page: a, offset: b};
 	});
-var _user$project$Canvas_Basics$TextF = F3(
-	function (a, b, c) {
-		return {ctor: 'TextF', _0: a, _1: b, _2: c};
+var _user$project$Canvas_Basics$TextF = F6(
+	function (a, b, c, d, e, f) {
+		return {ctor: 'TextF', _0: a, _1: b, _2: c, _3: d, _4: e, _5: f};
 	});
 var _user$project$Canvas_Basics$ElementF = F5(
 	function (a, b, c, d, e) {
 		return {ctor: 'ElementF', _0: a, _1: b, _2: c, _3: d, _4: e};
 	});
 
+var _user$project$Canvas_Event$defaultPropagation = _elm_lang$core$Basics$always(false);
 var _user$project$Canvas_Event$MouseEvent = F3(
 	function (a, b, c) {
 		return {page: a, canvas: b, offset: c};
 	});
-var _user$project$Canvas_Event$DoubleClickE = function (a) {
-	return {ctor: 'DoubleClickE', _0: a};
-};
-var _user$project$Canvas_Event$ClickE = function (a) {
-	return {ctor: 'ClickE', _0: a};
-};
-var _user$project$Canvas_Event$MouseUpE = function (a) {
-	return {ctor: 'MouseUpE', _0: a};
-};
-var _user$project$Canvas_Event$MouseDownE = function (a) {
-	return {ctor: 'MouseDownE', _0: a};
-};
+var _user$project$Canvas_Event$DoubleClickE = F2(
+	function (a, b) {
+		return {ctor: 'DoubleClickE', _0: a, _1: b};
+	});
+var _user$project$Canvas_Event$ClickE = F2(
+	function (a, b) {
+		return {ctor: 'ClickE', _0: a, _1: b};
+	});
+var _user$project$Canvas_Event$MouseUpE = F2(
+	function (a, b) {
+		return {ctor: 'MouseUpE', _0: a, _1: b};
+	});
+var _user$project$Canvas_Event$MouseDownE = F2(
+	function (a, b) {
+		return {ctor: 'MouseDownE', _0: a, _1: b};
+	});
+var _user$project$Canvas_Event$setStopPropagation = F2(
+	function (f, e) {
+		var _p0 = e;
+		switch (_p0.ctor) {
+			case 'MouseDownE':
+				return A2(_user$project$Canvas_Event$MouseDownE, f, _p0._1);
+			case 'MouseUpE':
+				return A2(_user$project$Canvas_Event$MouseUpE, f, _p0._1);
+			case 'ClickE':
+				return A2(_user$project$Canvas_Event$ClickE, f, _p0._1);
+			default:
+				return A2(_user$project$Canvas_Event$DoubleClickE, f, _p0._1);
+		}
+	});
 
 var _user$project$Canvas_Properties$default = {
 	position: _elm_lang$core$Maybe$Nothing,
 	size: _elm_lang$core$Maybe$Nothing,
 	border: _elm_lang$core$Maybe$Nothing,
 	shadow: _elm_lang$core$Maybe$Nothing,
-	color: _elm_lang$core$Maybe$Nothing,
 	backgroundColor: _elm_lang$core$Maybe$Nothing,
 	padding: _elm_lang$core$Maybe$Nothing,
+	color: _elm_lang$core$Maybe$Nothing,
+	fontWeight: _elm_lang$core$Maybe$Nothing,
+	fontFamily: _elm_lang$core$Maybe$Nothing,
+	fontSize: _elm_lang$core$Maybe$Nothing,
 	events: {ctor: '[]'}
 };
 var _user$project$Canvas_Properties$fromAttributes = function (attrs) {
@@ -9240,12 +9262,6 @@ var _user$project$Canvas_Properties$fromAttributes = function (attrs) {
 							{
 								shadow: _elm_lang$core$Maybe$Just(_p0._0)
 							});
-					case 'ColorA':
-						return _elm_lang$core$Native_Utils.update(
-							op,
-							{
-								color: _elm_lang$core$Maybe$Just(_p0._0)
-							});
 					case 'BackgroundColorA':
 						return _elm_lang$core$Native_Utils.update(
 							op,
@@ -9258,6 +9274,30 @@ var _user$project$Canvas_Properties$fromAttributes = function (attrs) {
 							{
 								padding: _elm_lang$core$Maybe$Just(_p0._0)
 							});
+					case 'ColorA':
+						return _elm_lang$core$Native_Utils.update(
+							op,
+							{
+								color: _elm_lang$core$Maybe$Just(_p0._0)
+							});
+					case 'FontWeightA':
+						return _elm_lang$core$Native_Utils.update(
+							op,
+							{
+								fontWeight: _elm_lang$core$Maybe$Just(_p0._0)
+							});
+					case 'FontFamilyA':
+						return _elm_lang$core$Native_Utils.update(
+							op,
+							{
+								fontFamily: _elm_lang$core$Maybe$Just(_p0._0)
+							});
+					case 'FontSizeA':
+						return _elm_lang$core$Native_Utils.update(
+							op,
+							{
+								fontSize: _elm_lang$core$Maybe$Just(_p0._0)
+							});
 					default:
 						return _elm_lang$core$Native_Utils.update(
 							op,
@@ -9269,21 +9309,49 @@ var _user$project$Canvas_Properties$fromAttributes = function (attrs) {
 		_user$project$Canvas_Properties$default,
 		attrs);
 };
-var _user$project$Canvas_Properties$Properties = F8(
-	function (a, b, c, d, e, f, g, h) {
-		return {position: a, size: b, border: c, shadow: d, color: e, backgroundColor: f, padding: g, events: h};
-	});
+var _user$project$Canvas_Properties$Properties = function (a) {
+	return function (b) {
+		return function (c) {
+			return function (d) {
+				return function (e) {
+					return function (f) {
+						return function (g) {
+							return function (h) {
+								return function (i) {
+									return function (j) {
+										return function (k) {
+											return {position: a, size: b, border: c, shadow: d, backgroundColor: e, padding: f, color: g, fontWeight: h, fontFamily: i, fontSize: j, events: k};
+										};
+									};
+								};
+							};
+						};
+					};
+				};
+			};
+		};
+	};
+};
 var _user$project$Canvas_Properties$EventA = function (a) {
 	return {ctor: 'EventA', _0: a};
+};
+var _user$project$Canvas_Properties$FontSizeA = function (a) {
+	return {ctor: 'FontSizeA', _0: a};
+};
+var _user$project$Canvas_Properties$FontFamilyA = function (a) {
+	return {ctor: 'FontFamilyA', _0: a};
+};
+var _user$project$Canvas_Properties$FontWeightA = function (a) {
+	return {ctor: 'FontWeightA', _0: a};
+};
+var _user$project$Canvas_Properties$ColorA = function (a) {
+	return {ctor: 'ColorA', _0: a};
 };
 var _user$project$Canvas_Properties$PaddingA = function (a) {
 	return {ctor: 'PaddingA', _0: a};
 };
 var _user$project$Canvas_Properties$BackgroundColorA = function (a) {
 	return {ctor: 'BackgroundColorA', _0: a};
-};
-var _user$project$Canvas_Properties$ColorA = function (a) {
-	return {ctor: 'ColorA', _0: a};
 };
 var _user$project$Canvas_Properties$ShadowA = function (a) {
 	return {ctor: 'ShadowA', _0: a};
@@ -9341,8 +9409,8 @@ var _user$project$Canvas_Element$collectEventsHelp = F4(
 			return _elm_lang$core$Native_Utils.crashCase(
 				'Canvas.Element',
 				{
-					start: {line: 204, column: 3},
-					end: {line: 219, column: 59}
+					start: {line: 213, column: 3},
+					end: {line: 228, column: 59}
 				},
 				_p6)('text cannot be a target or its parents');
 		}
@@ -9379,7 +9447,7 @@ var _user$project$Canvas_Element$collectDoubleClickEvents = _user$project$Canvas
 	function (e) {
 		var _p11 = e;
 		if (_p11.ctor === 'DoubleClickE') {
-			return _elm_lang$core$Maybe$Just(_p11._0);
+			return _elm_lang$core$Maybe$Just(_p11._1);
 		} else {
 			return _elm_lang$core$Maybe$Nothing;
 		}
@@ -9388,7 +9456,7 @@ var _user$project$Canvas_Element$collectClickEvents = _user$project$Canvas_Eleme
 	function (e) {
 		var _p12 = e;
 		if (_p12.ctor === 'ClickE') {
-			return _elm_lang$core$Maybe$Just(_p12._0);
+			return _elm_lang$core$Maybe$Just(_p12._1);
 		} else {
 			return _elm_lang$core$Maybe$Nothing;
 		}
@@ -9397,7 +9465,7 @@ var _user$project$Canvas_Element$collectMouseUpEvents = _user$project$Canvas_Ele
 	function (e) {
 		var _p13 = e;
 		if (_p13.ctor === 'MouseUpE') {
-			return _elm_lang$core$Maybe$Just(_p13._0);
+			return _elm_lang$core$Maybe$Just(_p13._1);
 		} else {
 			return _elm_lang$core$Maybe$Nothing;
 		}
@@ -9406,7 +9474,7 @@ var _user$project$Canvas_Element$collectMouseDownEvents = _user$project$Canvas_E
 	function (e) {
 		var _p14 = e;
 		if (_p14.ctor === 'MouseDownE') {
-			return _elm_lang$core$Maybe$Just(_p14._0);
+			return _elm_lang$core$Maybe$Just(_p14._1);
 		} else {
 			return _elm_lang$core$Maybe$Nothing;
 		}
@@ -9431,7 +9499,10 @@ var _user$project$Canvas_Element$formatNode = F2(
 				context,
 				{
 					position: A2(_user$project$Canvas_Basics_ops['<+>'], position, padding),
-					color: A2(_elm_lang$core$Maybe$withDefault, context.color, _p16.color)
+					color: A2(_elm_lang$core$Maybe$withDefault, context.color, _p16.color),
+					fontWeight: A2(_elm_lang$core$Maybe$withDefault, context.fontWeight, _p16.fontWeight),
+					fontFamily: A2(_elm_lang$core$Maybe$withDefault, context.fontFamily, _p16.fontFamily),
+					fontSize: A2(_elm_lang$core$Maybe$withDefault, context.fontSize, _p16.fontSize)
 				});
 			return {
 				ctor: '::',
@@ -9443,7 +9514,7 @@ var _user$project$Canvas_Element$formatNode = F2(
 			};
 		} else {
 			var position = context.position;
-			var value = A3(_user$project$Canvas_Basics$TextF, position, context.color, _p15._0);
+			var value = A6(_user$project$Canvas_Basics$TextF, position, context.color, context.fontWeight, context.fontFamily, context.fontSize, _p15._0);
 			return {
 				ctor: '::',
 				_0: value,
@@ -9451,7 +9522,7 @@ var _user$project$Canvas_Element$formatNode = F2(
 			};
 		}
 	});
-var _user$project$Canvas_Element$initialContext = {position: _user$project$Canvas_Basics$zeroPosition, color: _elm_lang$core$Color$black};
+var _user$project$Canvas_Element$initialContext = {position: _user$project$Canvas_Basics$zeroPosition, color: _elm_lang$core$Color$black, fontWeight: 'normal', fontFamily: 'sans-serif', fontSize: 10};
 var _user$project$Canvas_Element$sortByZIndexHelp = F4(
 	function (from, parents, element, prev) {
 		var _p17 = element;
@@ -9500,9 +9571,9 @@ var _user$project$Canvas_Element$sortByZIndex = function (element) {
 		element,
 		{ctor: '[]'});
 };
-var _user$project$Canvas_Element$Context = F2(
-	function (a, b) {
-		return {position: a, color: b};
+var _user$project$Canvas_Element$Context = F5(
+	function (a, b, c, d, e) {
+		return {position: a, color: b, fontWeight: c, fontFamily: d, fontSize: e};
 	});
 var _user$project$Canvas_Element$Text = function (a) {
 	return {ctor: 'Text', _0: a};
@@ -9629,8 +9700,8 @@ var _user$project$Canvas_Ports$encodeBorder = function (border) {
 			},
 			border));
 };
-var _user$project$Canvas_Ports$encodeText = F3(
-	function (position, color, content) {
+var _user$project$Canvas_Ports$encodeText = F6(
+	function (position, color, fontWeight, fontFamily, fontSize, content) {
 		return _elm_lang$core$Json_Encode$object(
 			{
 				ctor: '::',
@@ -9657,10 +9728,34 @@ var _user$project$Canvas_Ports$encodeText = F3(
 							ctor: '::',
 							_0: {
 								ctor: '_Tuple2',
-								_0: 'content',
-								_1: _elm_lang$core$Json_Encode$string(content)
+								_0: 'fontWeight',
+								_1: _elm_lang$core$Json_Encode$string(fontWeight)
 							},
-							_1: {ctor: '[]'}
+							_1: {
+								ctor: '::',
+								_0: {
+									ctor: '_Tuple2',
+									_0: 'fontFamily',
+									_1: _elm_lang$core$Json_Encode$string(fontFamily)
+								},
+								_1: {
+									ctor: '::',
+									_0: {
+										ctor: '_Tuple2',
+										_0: 'fontSize',
+										_1: _elm_lang$core$Json_Encode$int(fontSize)
+									},
+									_1: {
+										ctor: '::',
+										_0: {
+											ctor: '_Tuple2',
+											_0: 'content',
+											_1: _elm_lang$core$Json_Encode$string(content)
+										},
+										_1: {ctor: '[]'}
+									}
+								}
+							}
 						}
 					}
 				}
@@ -9724,7 +9819,7 @@ var _user$project$Canvas_Ports$encodeNode = function (node) {
 	if (_p0.ctor === 'ElementF') {
 		return A5(_user$project$Canvas_Ports$encodeElement, _p0._0, _p0._1, _p0._2, _p0._3, _p0._4);
 	} else {
-		return A3(_user$project$Canvas_Ports$encodeText, _p0._0, _p0._1, _p0._2);
+		return A6(_user$project$Canvas_Ports$encodeText, _p0._0, _p0._1, _p0._2, _p0._3, _p0._4, _p0._5);
 	}
 };
 var _user$project$Canvas_Ports$toOutput = F2(
@@ -9968,29 +10063,35 @@ var _user$project$Canvas_Program$update = F4(
 		}
 	});
 
+var _user$project$Canvas$stopPropagation = _user$project$Canvas_Event$setStopPropagation(
+	_elm_lang$core$Basics$always(true));
+var _user$project$Canvas$stopPropagationIf = _user$project$Canvas_Event$setStopPropagation;
 var _user$project$Canvas$onDoubleClick = function (_p0) {
 	return _user$project$Canvas_Properties$EventA(
-		_user$project$Canvas_Event$DoubleClickE(_p0));
+		A2(_user$project$Canvas_Event$DoubleClickE, _user$project$Canvas_Event$defaultPropagation, _p0));
 };
 var _user$project$Canvas$onClick = function (_p1) {
 	return _user$project$Canvas_Properties$EventA(
-		_user$project$Canvas_Event$ClickE(_p1));
+		A2(_user$project$Canvas_Event$ClickE, _user$project$Canvas_Event$defaultPropagation, _p1));
 };
 var _user$project$Canvas$onMouseUp = function (_p2) {
 	return _user$project$Canvas_Properties$EventA(
-		_user$project$Canvas_Event$MouseUpE(_p2));
+		A2(_user$project$Canvas_Event$MouseUpE, _user$project$Canvas_Event$defaultPropagation, _p2));
 };
 var _user$project$Canvas$onMouseDown = function (_p3) {
 	return _user$project$Canvas_Properties$EventA(
-		_user$project$Canvas_Event$MouseDownE(_p3));
+		A2(_user$project$Canvas_Event$MouseDownE, _user$project$Canvas_Event$defaultPropagation, _p3));
 };
+var _user$project$Canvas$fontSize = _user$project$Canvas_Properties$FontSizeA;
+var _user$project$Canvas$fontFamily = _user$project$Canvas_Properties$FontFamilyA;
+var _user$project$Canvas$fontWeight = _user$project$Canvas_Properties$FontWeightA;
+var _user$project$Canvas$color = _user$project$Canvas_Properties$ColorA;
 var _user$project$Canvas$padding = F2(
 	function (x, y) {
 		return _user$project$Canvas_Properties$PaddingA(
 			{x: x, y: y});
 	});
 var _user$project$Canvas$backgroundColor = _user$project$Canvas_Properties$BackgroundColorA;
-var _user$project$Canvas$color = _user$project$Canvas_Properties$ColorA;
 var _user$project$Canvas$shadow = F4(
 	function (blur, offsetX, offsetY, color) {
 		return _user$project$Canvas_Properties$ShadowA(
@@ -10227,7 +10328,15 @@ var _user$project$DragAndDrop$canvasView = function (model) {
 						_1: {
 							ctor: '::',
 							_0: _user$project$Canvas$color(_elm_lang$core$Color$white),
-							_1: {ctor: '[]'}
+							_1: {
+								ctor: '::',
+								_0: _user$project$Canvas$fontSize(16),
+								_1: {
+									ctor: '::',
+									_0: _user$project$Canvas$fontFamily('\'Source Sans Pro\', \'Trebuchet MS\', \'Lucida Grande\', \'Bitstream Vera Sans\', \'Helvetica Neue\', sans-serif'),
+									_1: {ctor: '[]'}
+								}
+							}
 						}
 					}
 				}

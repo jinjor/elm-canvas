@@ -54,6 +54,9 @@ sortByZIndexHelp from parents element prev =
 type alias Context =
   { position : Position
   , color : Color
+  , fontWeight : String
+  , fontFamily : String
+  , fontSize : Int
   }
 
 
@@ -61,6 +64,9 @@ initialContext : Context
 initialContext =
   { position = zeroPosition
   , color = Color.black
+  , fontWeight = "normal"
+  , fontFamily = "sans-serif"
+  , fontSize = 10
   }
 
 
@@ -88,6 +94,9 @@ formatNode context element =
           { context
             | position = position <+> padding
             , color = Maybe.withDefault context.color properties.color
+            , fontWeight = Maybe.withDefault context.fontWeight properties.fontWeight
+            , fontFamily = Maybe.withDefault context.fontFamily properties.fontFamily
+            , fontSize = Maybe.withDefault context.fontSize properties.fontSize
           }
       in
         value :: List.concatMap (formatNode newContext) children
@@ -98,7 +107,7 @@ formatNode context element =
           context.position
 
         value =
-          TextF position context.color content
+          TextF position context.color context.fontWeight context.fontFamily context.fontSize content
       in
         [ value ]
 
@@ -111,7 +120,7 @@ collectMouseDownEvents
 collectMouseDownEvents =
   collectMouseEvents (\e ->
     case e of
-      MouseDownE toMsg ->
+      MouseDownE _ toMsg ->
         Just toMsg
 
       _ ->
@@ -127,7 +136,7 @@ collectMouseUpEvents
 collectMouseUpEvents =
   collectMouseEvents (\e ->
     case e of
-      MouseUpE toMsg ->
+      MouseUpE _ toMsg ->
         Just toMsg
 
       _ ->
@@ -143,7 +152,7 @@ collectClickEvents
 collectClickEvents =
   collectMouseEvents (\e ->
     case e of
-      ClickE toMsg ->
+      ClickE _ toMsg ->
         Just toMsg
 
       _ ->
@@ -159,7 +168,7 @@ collectDoubleClickEvents
 collectDoubleClickEvents =
   collectMouseEvents (\e ->
     case e of
-      DoubleClickE toMsg ->
+      DoubleClickE _ toMsg ->
         Just toMsg
 
       _ ->

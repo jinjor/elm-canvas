@@ -88,4 +88,4 @@ type alias OriginalMouseEvent =
 
 type FormattedNode
   = ElementF Position Size (Maybe Border) (Maybe Shadow) Color
-  | TextF Position Color String
+  | TextF Position Color String String Int String

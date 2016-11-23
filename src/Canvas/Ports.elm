@@ -83,8 +83,8 @@ encodeNode node =
     ElementF position size border shadow backgroundColor ->
       encodeElement position size border shadow backgroundColor
 
-    TextF position color content ->
-      encodeText position color content
+    TextF position color fontWeight fontFamily fontSize content ->
+      encodeText position color fontWeight fontFamily fontSize content
 
 
 encodeElement : Position -> Size -> Maybe Border -> Maybe Shadow -> Color -> Json
@@ -99,12 +99,15 @@ encodeElement position size border shadow backgroundColor =
     ]
 
 
-encodeText : Position -> Color -> String -> Json
-encodeText position color content =
+encodeText : Position -> Color -> String -> String -> Int -> String -> Json
+encodeText position color fontWeight fontFamily fontSize content =
   E.object
     [ ( "type", E.string "text" )
     , ( "position", encodePosition position )
     , ( "color", encodeColor color )
+    , ( "fontWeight", E.string fontWeight )
+    , ( "fontFamily", E.string fontFamily )
+    , ( "fontSize", E.int fontSize )
     , ( "content", E.string content )
     ]
 

@@ -11,9 +11,12 @@ type alias Properties msg =
   , size : Maybe Size
   , border : Maybe Border
   , shadow : Maybe Shadow
-  , color : Maybe Color
   , backgroundColor : Maybe Color
   , padding : Maybe Position
+  , color : Maybe Color
+  , fontWeight : Maybe String
+  , fontFamily : Maybe String
+  , fontSize : Maybe Int
   , events : List (Event msg)
   }
 
@@ -24,9 +27,12 @@ default =
   , size = Nothing
   , border = Nothing
   , shadow = Nothing
-  , color = Nothing
   , backgroundColor = Nothing
   , padding = Nothing
+  , color = Nothing
+  , fontWeight = Nothing
+  , fontFamily = Nothing
+  , fontSize = Nothing
   , events = []
   }
 
@@ -36,9 +42,12 @@ type Attribute msg
   | SizeA Size
   | BorderA Border
   | ShadowA Shadow
-  | ColorA Color
   | BackgroundColorA Color
   | PaddingA Position
+  | ColorA Color
+  | FontWeightA String
+  | FontFamilyA String
+  | FontSizeA Int
   | EventA (Event msg)
 
 
@@ -60,14 +69,23 @@ fromAttributes attrs =
           ShadowA shadow ->
             { op | shadow = Just shadow }
 
-          ColorA color ->
-            { op | color = Just color }
-
           BackgroundColorA backgroundColor ->
             { op | backgroundColor = Just backgroundColor }
 
           PaddingA padding ->
             { op | padding = Just padding }
+
+          ColorA color ->
+            { op | color = Just color }
+
+          FontWeightA fontWeight ->
+            { op | fontWeight = Just fontWeight }
+
+          FontFamilyA fontFamily ->
+            { op | fontFamily = Just fontFamily }
+
+          FontSizeA fontSize ->
+            { op | fontSize = Just fontSize }
 
           EventA event ->
             { op | events = event :: op.events }
